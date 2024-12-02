@@ -108,4 +108,8 @@
         <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')"/>
         <None Include="BeatSaverNotifier.csproj.user" Condition="Exists('BeatSaverNotifier.csproj.user')"/>
     </ItemGroup>
+    <ItemGroup>
+      <None Remove="UI\BSML\BeatSaverNotifierView.bsml" />
+      <EmbeddedResource Include="UI\BSML\BeatSaverNotifierView.bsml" />
+    </ItemGroup>
 </Project>
