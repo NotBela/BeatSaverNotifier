@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using IPA.Config.Stores;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
@@ -9,8 +10,6 @@ namespace BeatSaverNotifier.Configuration
     {
         public static PluginConfig Instance { get; set; }
 
-        /// A value for the config has to be virtual if you want BSIPA
-        /// to detect a value change and save the config automatically
-        // public virtual int MeaningofLife = 42 { get; set; } 
+        public virtual int firstCheckTime { get; set; } = -1;
     }
 }

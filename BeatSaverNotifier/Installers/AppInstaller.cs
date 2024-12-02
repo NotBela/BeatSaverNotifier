@@ -1,3 +1,4 @@
+using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.Configuration;
 using BeatSaverNotifier.FlowCoordinators;
 using BeatSaverNotifier.UI;
@@ -9,7 +10,7 @@ namespace BeatSaverNotifier.Installers
     {
         public override void InstallBindings()
         {
-            
+            Container.BindInterfacesAndSelfTo<BeatSaverChecker>().AsSingle();
         }
     }
 }
