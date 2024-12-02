@@ -29,6 +29,10 @@
             <HintPath>$(BeatSaberDir)\Libs\BeatSaverSharp.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="Hive.Versioning">
+            <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="Newtonsoft.Json">
             <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
             <Private>false</Private>
