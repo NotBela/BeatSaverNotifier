@@ -14,11 +14,8 @@ namespace BeatSaverNotifier.Configuration
     internal class PluginConfig
     {
         public static PluginConfig Instance { get; set; }
-
-        [NonNullable]
-        public virtual DateTime firstCheckTime { get; set; } = DateTime.Now;
         
-        [UseConverter(typeof(ListConverter<User>))]
-        public virtual List<User> followedUsers { get; set; } = new List<User>();
+        [UseConverter(typeof(ListConverter<Tuple<DateTime, DateTime>>))]
+        public virtual List<Tuple<User, DateTime>> followedUsersWithFollowDate { get; set; } = new List<Tuple<User, DateTime>>();
     }
 }

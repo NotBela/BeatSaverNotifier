@@ -45,7 +45,7 @@ namespace BeatSaverNotifier.BeatSaver
         {
             List<Beatmap> maps = new List<Beatmap>();
             
-            var listOfMappers = PluginConfig.Instance.followedUsers;
+            var listOfMappers = PluginConfig.Instance.followedUsersWithFollowDate;
 
             if (listOfMappers != null)
             {
@@ -57,7 +57,7 @@ namespace BeatSaverNotifier.BeatSaver
                     {
                         foreach (var map in page.Beatmaps)
                         {
-                            if (map.Uploaded > PluginConfig.Instance.firstCheckTime) maps.Add(map);
+                            if (map.Uploaded > mapper.Item2) maps.Add(map);
                         }
                     }
                 }
@@ -66,18 +66,18 @@ namespace BeatSaverNotifier.BeatSaver
             OnBeatSaverCheck?.Invoke(maps);
         }
 
-        private async Task<List<Page>> getAllRequiredPagesFromUser(User user)
+        private async Task<List<Page>> getAllRequiredPagesFromUser(Tuple<User, DateTime> mapper)
         {
             var returnList = new List<Page>();
 
             var currentPageIndex = 0;
-            var currentBeatmapPage = await user.Beatmaps(currentPageIndex);
+            var currentBeatmapPage = await mapper.Item1.Beatmaps(currentPageIndex);
 
-            while (currentBeatmapPage != null && currentBeatmapPage.Beatmaps.Last().Uploaded > PluginConfig.Instance.firstCheckTime)
+            while (currentBeatmapPage != null && currentBeatmapPage.Beatmaps.Last().Uploaded > mapper.Item2)
             {
                 returnList.Add(currentBeatmapPage);
                 currentPageIndex++;
-                currentBeatmapPage = await user.Beatmaps(currentPageIndex);
+                currentBeatmapPage = await mapper.Item1.Beatmaps(currentPageIndex);
             }
             
             return returnList;

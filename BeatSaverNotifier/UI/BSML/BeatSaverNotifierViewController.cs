@@ -65,12 +65,12 @@ namespace BeatSaverNotifier.UI
         public void Initialize()
         {
             if (_beatSaverChecker == null) Plugin.Log.Info("checker is null (in view controller)");
-            // _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;
+            _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;
         }
         
         public void Dispose()
         {
-            // _beatSaverChecker.OnBeatSaverCheck -= OnBeatSaverCheck;
+            _beatSaverChecker.OnBeatSaverCheck -= OnBeatSaverCheck;
         }
     }
 }
