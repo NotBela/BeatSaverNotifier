@@ -19,13 +19,14 @@ namespace BeatSaverNotifier.UI
     [ViewDefinition("BeatSaverNotifier.UI.BSML.BeatSaverNotifierView.bsml")]
     internal class BeatSaverNotifierViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
-        private readonly BeatSaverChecker _beatSaverChecker;
-        private readonly SiraLog _logger;
+        private BeatSaverChecker _beatSaverChecker;
+        private SiraLog _logger;
         
         [UIComponent("mapList")]
         private readonly CustomListTableData customListTableData = null;
-
-        public BeatSaverNotifierViewController(SiraLog siraLog, BeatSaverChecker beatSaverChecker)
+        
+        [Inject]
+        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker)
         {
             this._logger = siraLog;
             this._beatSaverChecker = beatSaverChecker;
@@ -63,7 +64,7 @@ namespace BeatSaverNotifier.UI
         
         public void Initialize()
         {
-            if (_beatSaverChecker == null) Plugin.Log.Info("yeah");
+            if (_beatSaverChecker == null) Plugin.Log.Info("checker is null (in view controller)");
             // _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;
         }
         
