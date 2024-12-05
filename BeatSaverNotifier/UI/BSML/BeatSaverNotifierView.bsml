@@ -1,3 +1,8 @@
-<scrollable-settings-container>
-    <text text="placeholder"/>
-</scrollable-settings-container>
+<vertical>
+    <horizontal>
+        <vertical>
+            <list id="mapList" select-cell="selectedCell" show-scrollbar="true" visible-cells="7" bind-value="true"/>
+        </vertical>
+        <text text="rightPanel"/>
+    </horizontal>
+</vertical>

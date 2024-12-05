@@ -17,7 +17,7 @@ namespace BeatSaverNotifier.UI
         {
             _flowCoordinator = flowCoordinator;
             this._parent = parent;
-            this._menuButton = new MenuButton("BeatSaverNotifier", onButtonPressed);
+            this._menuButton = new MenuButton("BeatSaverNotifier", "Loading...", onButtonPressed);
         }
 
         public void Initialize()
