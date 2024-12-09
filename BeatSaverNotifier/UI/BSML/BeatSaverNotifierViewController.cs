@@ -17,6 +17,7 @@ using Zenject;
 namespace BeatSaverNotifier.UI
 {
     [ViewDefinition("BeatSaverNotifier.UI.BSML.BeatSaverNotifierView.bsml")]
+    [HotReload(RelativePathToLayout = @"../UI/BSML/BeatSaverNotifierView.bsml")]
     internal class BeatSaverNotifierViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         private BeatSaverChecker _beatSaverChecker;
@@ -64,7 +65,6 @@ namespace BeatSaverNotifier.UI
         
         public void Initialize()
         {
-            if (_beatSaverChecker == null) Plugin.Log.Info("checker is null (in view controller)");
             _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;
         }
         

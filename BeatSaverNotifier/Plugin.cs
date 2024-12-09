@@ -5,6 +5,7 @@ using IPA.Config.Stores;
 using SiraUtil.Zenject;
 using BeatSaverNotifier.Configuration;
 using BeatSaverNotifier.Installers;
+using IPA.Loader;
 using IPALogger = IPA.Logging.Logger;
 
 namespace BeatSaverNotifier
@@ -16,12 +17,15 @@ namespace BeatSaverNotifier
     {
         internal static Plugin Instance { get; private set; }
         internal static IPALogger Log { get; private set; }
+        
+        public PluginMetadata metaData { get; set; }
 
         [Init]
-        public void Init(Zenjector zenjector, IPALogger logger, Config config)
+        public void Init(Zenjector zenjector, IPALogger logger, Config config, PluginMetadata metadata)
         {
             Instance = this;
             Log = logger;
+            this.metaData = metadata;
 
             zenjector.UseLogger(logger);
             zenjector.UseMetadataBinder<Plugin>();
