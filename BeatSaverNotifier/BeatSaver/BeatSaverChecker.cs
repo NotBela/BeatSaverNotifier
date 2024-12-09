@@ -81,7 +81,7 @@ namespace BeatSaverNotifier.BeatSaver
 
                     foreach (var page in allPages)
                     foreach (var map in page.Beatmaps)
-                        maps.Add(map);
+                        if (map.Uploaded > mapper.Value) maps.Add(map);
                 }
             }
             
