@@ -17,7 +17,8 @@ namespace BeatSaverNotifier.Configuration
 
         public virtual string userId { get; set; } = String.Empty;
         
-        [UseConverter(typeof(DictionaryConverter<DateTime>))]
-        public virtual Dictionary<string, DateTime> savedFollowDictionary { get; set; } = new Dictionary<string, DateTime>();
+        public virtual string refreshToken { get; set; } = String.Empty;
+
+        public virtual DateTime? firstCheckTime { get; set; } = null;
     }
 }
