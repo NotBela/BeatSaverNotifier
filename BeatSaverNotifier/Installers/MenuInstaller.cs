@@ -1,4 +1,5 @@
 using BeatSaverNotifier.BeatSaver;
+using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.FlowCoordinators;
 using BeatSaverNotifier.UI;
 using Zenject;
@@ -12,6 +13,7 @@ namespace BeatSaverNotifier.Installers
             Container.BindInterfacesAndSelfTo<MenuButtonController>().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatSaverNotifierFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatSaverNotifierViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<CallbackListener>().AsSingle();
         }
     }
 }

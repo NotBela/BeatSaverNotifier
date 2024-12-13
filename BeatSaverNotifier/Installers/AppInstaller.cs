@@ -9,7 +9,6 @@ namespace BeatSaverNotifier.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<BeatSaverChecker>().AsSingle();
-            Container.BindInterfacesAndSelfTo<CallbackListener>().AsSingle();
             Container.BindInterfacesAndSelfTo<OAuthApi>().AsSingle();
         }
     }
