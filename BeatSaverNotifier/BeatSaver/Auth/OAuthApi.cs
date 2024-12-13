@@ -64,7 +64,6 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             if (!response.IsSuccessStatusCode) throw new Exception($"Failed to refresh token with status code {response.StatusCode}");
             
             var responseContent = await response.Content.ReadAsStringAsync();
-            Plugin.Log.Info(responseContent);
             
             PluginConfig.Instance.refreshToken = JObject.Parse(responseContent)["refresh_token"]?.Value<string>();
             return JObject.Parse(responseContent)["access_token"]?.Value<string>();
