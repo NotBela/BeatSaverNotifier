@@ -2,6 +2,7 @@
     <horizontal>
         <vertical>
             <list id="mapList" select-cell="selectedCell" show-scrollbar="true" visible-cells="7" bind-value="true"/>
+            <button id="testButton" text="test" on-click="testButtonOnClick"/>
         </vertical>
         <horizontal>
             <image src="https://na.cdn.beatsaver.com/a9843e34bdb6590cc8aba71b06b031e219c915ec.jpg" preserve-aspect="true" pref-width="17" pref-height="17" id="coverArtImage"/>

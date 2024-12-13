@@ -39,6 +39,7 @@ namespace BeatSaverNotifier.BeatSaver
             // check beatsaver on startup
             try
             {
+                if (PluginConfig.Instance.refreshToken == null) return;
                 await CheckBeatSaverAsync();
             }
             catch (Exception e)
@@ -49,37 +50,45 @@ namespace BeatSaverNotifier.BeatSaver
         
         private async Task CheckBeatSaverAsync()
         {
-            var maps = new List<Beatmap>();
-
-            var request = await _oAuthApi.addAuthenticationToRequest(new HttpRequestMessage
-            {
-                RequestUri = new Uri("https://api.beatsaver.com/search/text/0?followed=true&leaderboard=All&pageSize=20&q=&sortOrder=Latest")
-            });
+            var maps = await getPagesUntilPastFirstCheckDateTime();
             
-            var response = await _httpClient.SendAsync(request);
+            if (PluginConfig.Instance.firstCheckTime == null) PluginConfig.Instance.firstCheckTime = DateTime.Now;
             
             OnBeatSaverCheck?.Invoke(maps);
         }
 
-        private async Task<List<Page>> getAllRequiredPagesFromUser(KeyValuePair<string, DateTime> user)
+        private async Task<List<Beatmap>> getPagesUntilPastFirstCheckDateTime()
         {
-            var returnList = new List<Page>();
+            var maps = new List<Beatmap>();
+            var page = 0;
 
-            var mapper = await _beatSaver.User(user.Key);
-
-            if (mapper == null) return returnList;
-
-            var currentPageIndex = 0;
-            var currentBeatmapPage = await mapper.Beatmaps(currentPageIndex);
-
-            while (currentBeatmapPage != null && currentBeatmapPage.Beatmaps.Last().Uploaded > user.Value)
+            do
             {
-                returnList.Add(currentBeatmapPage);
-                currentPageIndex++;
-                currentBeatmapPage = await mapper.Beatmaps(currentPageIndex);
-            }
+                var request = await _oAuthApi.addAuthenticationToRequest(new HttpRequestMessage
+                {
+                    RequestUri = new Uri($"https://api.beatsaver.com/search/text/{page}?followed=true&leaderboard=All&pageSize=20&q=&sortOrder=Latest")
+                });
+                
+                var response = await _httpClient.SendAsync(request);
+                
+                if (!response.IsSuccessStatusCode) throw new Exception("Failed to fetch page with status code " + (int) response.StatusCode);
+                
+                var responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
+                var mapArray = JArray.Parse(responseJson["docs"]?.Value<string>() ?? throw new Exception("response content does not contain docs value"));
 
-            return returnList;
+                foreach (var mapJToken in mapArray)
+                {
+                    var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
+                                                      ?? throw new Exception("Map does not contain ID"));
+                    if (map?.Uploaded > PluginConfig.Instance.firstCheckTime)
+                    {
+                        maps.Add(map);
+                        page++;
+                    }
+                    else return maps;
+
+                }
+            } while (true);
         }
     }
 }

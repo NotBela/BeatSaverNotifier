@@ -12,8 +12,6 @@ namespace BeatSaverNotifier.BeatSaver.Auth
 {
     public class OAuthApi
     {
-        private readonly CallbackListener _callbackListener;
-        
         private readonly HttpClient _httpClient;
 
         private const string scope = "search";
@@ -21,10 +19,8 @@ namespace BeatSaverNotifier.BeatSaver.Auth
         private const string clientSecret = "0193baef-a69c-7569-ba03-52730b0d9fd4";
         private string lastState = String.Empty;
 
-        public OAuthApi(CallbackListener callbackListener)
+        public OAuthApi()
         {
-            this._callbackListener  = callbackListener;
-            
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd(
                 $"BeatSaverNotifier/{Plugin.Instance.metaData.HVersion}");
@@ -47,12 +43,12 @@ namespace BeatSaverNotifier.BeatSaver.Auth
                                              $"&redirect_uri={CallbackListener.callbackUri}");
         }
 
-        private async Task<string> getNewToken()
+        public async Task<string> getNewToken()
         {
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri($"https://beatsaver.com/oauth2/token", UriKind.Absolute),
+                RequestUri = new Uri($"https://beatsaver.com/api/oauth2/token", UriKind.Absolute),
                 Content = new FormUrlEncodedContent(new[]
                 {
                     new KeyValuePair<string, string>("grant_type", "refresh_token"),
@@ -68,6 +64,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             if (!response.IsSuccessStatusCode) throw new Exception($"Failed to refresh token with status code {response.StatusCode}");
             
             var responseContent = await response.Content.ReadAsStringAsync();
+            Plugin.Log.Info(responseContent);
             
             PluginConfig.Instance.refreshToken = JObject.Parse(responseContent)["refresh_token"]?.Value<string>();
             return JObject.Parse(responseContent)["access_token"]?.Value<string>();
@@ -86,7 +83,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri($"https://beatsaver.com/oauth2/token", UriKind.Absolute),
+                RequestUri = new Uri($"https://beatsaver.com/api/oauth2/token", UriKind.Absolute),
                 Content = new FormUrlEncodedContent(new[]
                 {
                     new KeyValuePair<string, string>("grant_type", "authorization_code"),
@@ -99,12 +96,14 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             };
             
             var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode) throw new Exception($"Failed to exchange code for token: failed with status code {response.StatusCode}");
+            if (!response.IsSuccessStatusCode) throw new Exception($"Failed to exchange code for token: failed with status code {(int)response.StatusCode}");
             if (state != lastState) throw new Exception("Invalid state returned from BeatSaver!");
             
             var responseContent = await response.Content.ReadAsStringAsync();
+            var parsedJson = JObject.Parse(responseContent);
             
-            return JObject.Parse(responseContent).GetValue("access_token")?.Value<string>();
+            PluginConfig.Instance.refreshToken = parsedJson["refresh_token"]?.Value<string>();
+            return parsedJson["refresh_token"]?.Value<string>();
         }
     }
 }

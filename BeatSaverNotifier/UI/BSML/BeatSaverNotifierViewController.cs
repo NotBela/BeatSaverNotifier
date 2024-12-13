@@ -9,7 +9,10 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Settings;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
+using BeatSaverNotifier.BeatSaver.Auth;
+using BeatSaverNotifier.Configuration;
 using BeatSaverSharp.Models;
+using ModestTree;
 using SiraUtil.Logging;
 using UnityEngine;
 using Zenject;
@@ -22,17 +25,33 @@ namespace BeatSaverNotifier.UI
     {
         private BeatSaverChecker _beatSaverChecker;
         private SiraLog _logger;
+        private OAuthApi _oAuthApi;
         
         [UIComponent("mapList")]
         private readonly CustomListTableData customListTableData = null;
         
         [Inject]
-        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker)
+        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker, OAuthApi oAuthApi)
         {
             this._logger = siraLog;
             this._beatSaverChecker = beatSaverChecker;
+            this._oAuthApi = oAuthApi;
         }
 
+        [UIAction("testButtonOnClick")]
+        private async void testButtonOnClick()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(PluginConfig.Instance.refreshToken)) _oAuthApi.startOAuthFlow();
+                else await _oAuthApi.getNewToken();
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
+        }
+        
         private async void OnBeatSaverCheck(List<Beatmap> mapList)
         {
             try

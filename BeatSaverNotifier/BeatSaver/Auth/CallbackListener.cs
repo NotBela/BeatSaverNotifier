@@ -15,7 +15,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
         {
             Prefixes = { callbackUri }
         };
-        public const string callbackUri = "https://localhost:20198/";
+        public const string callbackUri = "http://localhost:20198/";
 
         private bool listen;
 
