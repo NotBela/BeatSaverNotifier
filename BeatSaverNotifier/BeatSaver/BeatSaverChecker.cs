@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -31,12 +32,14 @@ namespace BeatSaverNotifier.BeatSaver
             _logger = logger;
             _oAuthApi = oAuthApi;
         }
+
+        private DateTime parseDateTime(string dateTime) => DateTime.ParseExact(PluginConfig.Instance.firstCheckTime,
+            "yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'", CultureInfo.InvariantCulture, DateTimeStyles.None);
         
         public async Task CheckBeatSaverAsync()
         {
+            if (string.IsNullOrEmpty(PluginConfig.Instance.firstCheckTime)) PluginConfig.Instance.firstCheckTime = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'", CultureInfo.InvariantCulture);
             var maps = await getPagesUntilPastFirstCheckDateTime();
-            
-            if (PluginConfig.Instance.firstCheckTime == null) PluginConfig.Instance.firstCheckTime = DateTime.Now;
             
             OnBeatSaverCheck?.Invoke(maps);
         }
@@ -54,23 +57,28 @@ namespace BeatSaverNotifier.BeatSaver
                 });
                 
                 var response = await _httpClient.SendAsync(request);
-                
+                Plugin.Log.Info("erm i just sent a request");
                 if (!response.IsSuccessStatusCode) throw new Exception("Failed to fetch page with status code " + (int) response.StatusCode);
                 
                 var responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
-                var mapArray = JArray.Parse(responseJson["docs"]?.Value<string>() ?? throw new Exception("Response content does not contain docs array!"));
-
+                
+                var mapArray = JArray.Parse(responseJson.GetValue("docs")?.ToString() ?? throw new Exception());
+                
                 foreach (var mapJToken in mapArray)
                 {
                     var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
-                                                      ?? throw new Exception("Map does not contain ID"));
-                    if (map.Uploaded > PluginConfig.Instance.firstCheckTime)
+                                                       ?? throw new Exception("Map does not contain ID"));
+                    if (map?.Uploaded > parseDateTime(PluginConfig.Instance.firstCheckTime))
                     {
                         maps.Add(map);
+                        Plugin.Log.Info(map.ID + " uploaded " + map.Uploaded);
                         page++;
                     }
-                    else return maps;
-
+                    else
+                    {
+                        Plugin.Log.Info("erm no more requests");
+                        return maps;
+                    }
                 }
             } while (true);
         }

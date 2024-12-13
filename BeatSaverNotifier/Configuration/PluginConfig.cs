@@ -17,6 +17,6 @@ namespace BeatSaverNotifier.Configuration
 
         public virtual string refreshToken { get; set; } = String.Empty;
 
-        public virtual DateTime? firstCheckTime { get; set; } = null;
+        public virtual string firstCheckTime { get; set; } = "";
     }
 }
