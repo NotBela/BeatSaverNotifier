@@ -43,7 +43,7 @@ namespace BeatSaverNotifier.UI
         {
             try
             {
-                if (string.IsNullOrEmpty(PluginConfig.Instance.refreshToken)) _oAuthApi.startOAuthFlow();
+                if (string.IsNullOrEmpty(PluginConfig.Instance.refreshToken)) _oAuthApi.startNewOAuthFlow();
                 else await _oAuthApi.getNewToken();
             }
             catch (Exception e)
@@ -79,7 +79,7 @@ namespace BeatSaverNotifier.UI
             tex.Apply();
             var sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             
-            return new CustomListTableData.CustomCellInfo(beatmap.Name, beatmap.Metadata.SongAuthorName, sprite);
+            return new CustomListTableData.CustomCellInfo(beatmap.Name, beatmap.Metadata.LevelAuthorName, sprite);
         }
         
         public void Initialize()

@@ -33,8 +33,10 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             return state;
         }
 
-        public void startOAuthFlow()
+        public void startNewOAuthFlow()
         {
+            PluginConfig.Instance.refreshToken = "";
+            
             System.Diagnostics.Process.Start($"https://beatsaver.com/oauth2/authorize?" +
                                              $"state={getNewState()}" +
                                              $"&client_id={clientId}" +
