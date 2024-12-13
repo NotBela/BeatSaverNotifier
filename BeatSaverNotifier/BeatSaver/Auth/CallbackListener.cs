@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using SiraUtil.Logging;
 using Zenject;
@@ -18,6 +19,8 @@ namespace BeatSaverNotifier.BeatSaver.Auth
         public const string callbackUri = "http://localhost:20198/";
 
         private bool listen;
+        
+        private readonly byte[] responseBuffer = Encoding.UTF8.GetBytes("<p>Authenticated with BeatSaver successfully! You can now close this tab.</p>");
 
         private void start()
         {
@@ -37,6 +40,13 @@ namespace BeatSaverNotifier.BeatSaver.Auth
                         if (queries["state"] == null) throw new Exception("State not in queries");
 
                         await _oAuthApi.exchangeCodeForToken(queries["code"], queries["state"]);
+
+                        var responsePage = context.Response;
+                        responsePage.ContentType = "text/html";
+                        responsePage.StatusCode = 200;
+                        responsePage.ContentLength64 = responseBuffer.Length;
+                        
+                        await responsePage.OutputStream.WriteAsync(responseBuffer, 0, responseBuffer.Length);
                     }
                     catch (Exception e)
                     {

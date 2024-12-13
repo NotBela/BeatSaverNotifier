@@ -15,7 +15,7 @@ using Zenject;
 
 namespace BeatSaverNotifier.BeatSaver
 {
-    public class BeatSaverChecker : IInitializable
+    public class BeatSaverChecker
     {
         private readonly BeatSaverSharp.BeatSaver _beatSaver = new BeatSaverSharp.BeatSaver(
             new BeatSaverOptions("BeatSaverNotifier", 
@@ -30,25 +30,9 @@ namespace BeatSaverNotifier.BeatSaver
         {
             _logger = logger;
             _oAuthApi = oAuthApi;
-            
-            _httpClient.BaseAddress = new Uri("https://api.beatsaver.com");
-        }
-
-        public async void Initialize()
-        {
-            // check beatsaver on startup
-            try
-            {
-                if (PluginConfig.Instance.refreshToken == null) return;
-                await CheckBeatSaverAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-            }
         }
         
-        private async Task CheckBeatSaverAsync()
+        public async Task CheckBeatSaverAsync()
         {
             var maps = await getPagesUntilPastFirstCheckDateTime();
             
@@ -74,13 +58,13 @@ namespace BeatSaverNotifier.BeatSaver
                 if (!response.IsSuccessStatusCode) throw new Exception("Failed to fetch page with status code " + (int) response.StatusCode);
                 
                 var responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
-                var mapArray = JArray.Parse(responseJson["docs"]?.Value<string>() ?? throw new Exception("response content does not contain docs value"));
+                var mapArray = JArray.Parse(responseJson["docs"]?.Value<string>() ?? throw new Exception("Response content does not contain docs array!"));
 
                 foreach (var mapJToken in mapArray)
                 {
                     var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
                                                       ?? throw new Exception("Map does not contain ID"));
-                    if (map?.Uploaded > PluginConfig.Instance.firstCheckTime)
+                    if (map.Uploaded > PluginConfig.Instance.firstCheckTime)
                     {
                         maps.Add(map);
                         page++;
