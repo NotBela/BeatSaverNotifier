@@ -17,6 +17,6 @@ namespace BeatSaverNotifier.Configuration
 
         public virtual string refreshToken { get; set; } = String.Empty;
 
-        public virtual string firstCheckTime { get; set; } = "";
+        public virtual long firstCheckUnixTimeStamp { get; set; } = -1;
     }
 }

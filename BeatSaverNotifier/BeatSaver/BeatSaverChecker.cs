@@ -33,12 +33,13 @@ namespace BeatSaverNotifier.BeatSaver
             _oAuthApi = oAuthApi;
         }
 
-        private DateTime parseDateTime(string dateTime) => DateTime.ParseExact(PluginConfig.Instance.firstCheckTime,
-            "yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'", CultureInfo.InvariantCulture, DateTimeStyles.None);
+        private long parseUnixTimestamp(DateTime dateTime) => ((DateTimeOffset) dateTime).ToUnixTimeSeconds();
         
         public async Task CheckBeatSaverAsync()
         {
-            if (string.IsNullOrEmpty(PluginConfig.Instance.firstCheckTime)) PluginConfig.Instance.firstCheckTime = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'", CultureInfo.InvariantCulture);
+            if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
+                PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
+            
             var maps = await getPagesUntilPastFirstCheckDateTime();
             
             OnBeatSaverCheck?.Invoke(maps);
@@ -57,7 +58,7 @@ namespace BeatSaverNotifier.BeatSaver
                 });
                 
                 var response = await _httpClient.SendAsync(request);
-                Plugin.Log.Info("erm i just sent a request");
+
                 if (!response.IsSuccessStatusCode) throw new Exception("Failed to fetch page with status code " + (int) response.StatusCode);
                 
                 var responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
@@ -68,17 +69,13 @@ namespace BeatSaverNotifier.BeatSaver
                 {
                     var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
                                                        ?? throw new Exception("Map does not contain ID"));
-                    if (map?.Uploaded > parseDateTime(PluginConfig.Instance.firstCheckTime))
+                    if (parseUnixTimestamp(map?.Uploaded ?? throw new Exception("Map does not have a DateTime")) > PluginConfig.Instance.firstCheckUnixTimeStamp)
                     {
                         maps.Add(map);
                         Plugin.Log.Info(map.ID + " uploaded " + map.Uploaded);
                         page++;
                     }
-                    else
-                    {
-                        Plugin.Log.Info("erm no more requests");
-                        return maps;
-                    }
+                    else return maps;
                 }
             } while (true);
         }
