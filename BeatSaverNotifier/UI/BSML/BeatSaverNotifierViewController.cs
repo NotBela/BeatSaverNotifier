@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -42,6 +43,7 @@ namespace BeatSaverNotifier.UI.BSML
         
         [UIComponent("songNameText")] private readonly TextMeshProUGUI mapNameText = null;
         [UIComponent("songAuthorText")] private readonly TextMeshProUGUI songAuthorText = null;
+        [UIComponent("songSubNameText")] private readonly TextMeshProUGUI songSubNameText = null;
         [UIComponent("coverArtImage")] private readonly Image coverArtImage = null;
         
         [UIAction("testButtonOnClick")]
@@ -57,6 +59,14 @@ namespace BeatSaverNotifier.UI.BSML
                 _logger.Error(e);
             }
         }
+        
+        [UIAction("#post-parse")]
+
+        void postParse()
+        {
+            coverArtImage.material = Resources.FindObjectsOfTypeAll<Material>()
+                .FirstOrDefault(m => m.name == "UINoGlowRoundEdge");
+        }
 
         [UIAction("onCellSelect")]
         private async void onCellSelected(TableView tableView, int index)
@@ -67,17 +77,12 @@ namespace BeatSaverNotifier.UI.BSML
 
                 _rightPanelContainer.gameObject.SetActive(true);
                 
-                var songSubTextString = selectedBeatMap.Metadata.SongSubName;
-                if (songSubTextString[0] == '(' && songSubTextString[songSubTextString.Length - 1] == ')')
-                    songSubTextString = songSubTextString.Substring(1, songSubTextString.Length - 2);
-                mapNameText.text = $"{selectedBeatMap.Metadata.SongName} ({songSubTextString})";
+                songSubNameText.text = selectedBeatMap.Metadata.SongSubName;
+                mapNameText.text = $"{selectedBeatMap.Metadata.SongName}";
                 songAuthorText.text = selectedBeatMap.Metadata.SongAuthorName;
                 
                 var downloadedImage = await selectedBeatMap.LatestVersion.DownloadCoverImage();
-                var tex = new Texture2D(1, 1);
-                tex.LoadRawTextureData(downloadedImage);
-                tex.Apply();
-                coverArtImage.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                coverArtImage.sprite = BeatSaverChecker.createSpriteFromImageBuffer(downloadedImage);
             }
             catch (Exception e)
             {
@@ -109,12 +114,11 @@ namespace BeatSaverNotifier.UI.BSML
         private async Task<CustomListTableData.CustomCellInfo> getCustomListCellData(Beatmap beatmap)
         {
             var imgBytes = await beatmap.LatestVersion.DownloadCoverImage();
-            var tex = new Texture2D(2, 2);
-            tex.LoadRawTextureData(imgBytes);
-            tex.Apply();
-            var sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             
-            return new CustomListTableData.CustomCellInfo(beatmap.Name, beatmap.Metadata.LevelAuthorName, sprite);
+            return new CustomListTableData.CustomCellInfo(
+                beatmap.Name, 
+                beatmap.Metadata.LevelAuthorName, 
+                BeatSaverChecker.createSpriteFromImageBuffer(imgBytes));
         }
         
         public void Initialize() => _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;

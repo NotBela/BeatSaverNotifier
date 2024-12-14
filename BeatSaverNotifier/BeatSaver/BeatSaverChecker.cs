@@ -12,6 +12,7 @@ using BeatSaverSharp.Models;
 using BeatSaverSharp.Models.Pages;
 using Newtonsoft.Json.Linq;
 using SiraUtil.Logging;
+using UnityEngine;
 using Zenject;
 
 namespace BeatSaverNotifier.BeatSaver
@@ -34,6 +35,14 @@ namespace BeatSaverNotifier.BeatSaver
         }
 
         private long parseUnixTimestamp(DateTime dateTime) => ((DateTimeOffset) dateTime).ToUnixTimeSeconds();
+
+        public static Sprite createSpriteFromImageBuffer(byte[] buffer)
+        {
+            var tex = new Texture2D(2, 2);
+            ImageConversion.LoadImage(tex, buffer);
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+        }
         
         public async Task CheckBeatSaverAsync()
         {
