@@ -4,11 +4,11 @@
             <list id="mapList" select-cell="onCellSelect" show-scrollbar="true" visible-cells="7" bind-value="true"/>
             <button id="testButton" text="test" on-click="testButtonOnClick"/>
         </vertical>
-        <horizontal id="rightPanelContainer" active="false">
+        <horizontal pad-left="2" id="rightPanelContainer" active="false">
             <image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage"/>
-            <vertical vertical-fit="PreferredSize">
-                <text id="mapNameText" font-size="5"/>
-                <text id="mapperNameText" color="#CCC"/>
+            <vertical pad-left='5' vertical-fit="PreferredSize">
+                <text id="songNameText" font-size="5"/>
+                <text id="songAuthorText" color="#CCC"/>
             </vertical>
         </horizontal>
     </horizontal>

@@ -2,6 +2,7 @@ using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.FlowCoordinators;
 using BeatSaverNotifier.UI;
+using BeatSaverNotifier.UI.BSML;
 using Zenject;
 
 namespace BeatSaverNotifier.Installers

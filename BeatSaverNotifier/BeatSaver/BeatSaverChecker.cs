@@ -72,7 +72,6 @@ namespace BeatSaverNotifier.BeatSaver
                     if (parseUnixTimestamp(map?.Uploaded ?? throw new Exception("Map does not have a DateTime")) > PluginConfig.Instance.firstCheckUnixTimeStamp)
                     {
                         maps.Add(map);
-                        Plugin.Log.Info(map.ID + " uploaded " + map.Uploaded);
                         page++;
                     }
                     else return maps;

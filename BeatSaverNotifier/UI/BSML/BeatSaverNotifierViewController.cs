@@ -1,26 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BeatSaberMarkupLanguage.Settings;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.Configuration;
 using BeatSaverSharp.Models;
 using HMUI;
-using ModestTree;
 using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace BeatSaverNotifier.UI
+namespace BeatSaverNotifier.UI.BSML
 {
     [ViewDefinition("BeatSaverNotifier.UI.BSML.BeatSaverNotifierView.bsml")]
     [HotReload(RelativePathToLayout = @"../UI/BSML/BeatSaverNotifierView.bsml")]
@@ -45,8 +40,8 @@ namespace BeatSaverNotifier.UI
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
         
-        [UIComponent("mapNameText")] private readonly TextMeshProUGUI mapNameText = null;
-        [UIComponent("mapperNameText")] private readonly TextMeshProUGUI mapperNameText = null;
+        [UIComponent("songNameText")] private readonly TextMeshProUGUI mapNameText = null;
+        [UIComponent("songAuthorText")] private readonly TextMeshProUGUI songAuthorText = null;
         [UIComponent("coverArtImage")] private readonly Image coverArtImage = null;
         
         [UIAction("testButtonOnClick")]
@@ -71,10 +66,13 @@ namespace BeatSaverNotifier.UI
                 var selectedBeatMap = _beatmapsInList[index];
 
                 _rightPanelContainer.gameObject.SetActive(true);
-
-                mapNameText.text = selectedBeatMap.Name;
-                mapperNameText.text = selectedBeatMap.Metadata.LevelAuthorName;
-
+                
+                var songSubTextString = selectedBeatMap.Metadata.SongSubName;
+                if (songSubTextString[0] == '(' && songSubTextString[songSubTextString.Length - 1] == ')')
+                    songSubTextString = songSubTextString.Substring(1, songSubTextString.Length - 2);
+                mapNameText.text = $"{selectedBeatMap.Metadata.SongName} ({songSubTextString})";
+                songAuthorText.text = selectedBeatMap.Metadata.SongAuthorName;
+                
                 var downloadedImage = await selectedBeatMap.LatestVersion.DownloadCoverImage();
                 var tex = new Texture2D(1, 1);
                 tex.LoadRawTextureData(downloadedImage);
@@ -119,14 +117,8 @@ namespace BeatSaverNotifier.UI
             return new CustomListTableData.CustomCellInfo(beatmap.Name, beatmap.Metadata.LevelAuthorName, sprite);
         }
         
-        public void Initialize()
-        {
-            _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;
-        }
+        public void Initialize() => _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;
         
-        public void Dispose()
-        {
-            _beatSaverChecker.OnBeatSaverCheck -= OnBeatSaverCheck;
-        }
+        public void Dispose() => _beatSaverChecker.OnBeatSaverCheck -= OnBeatSaverCheck;
     }
 }
