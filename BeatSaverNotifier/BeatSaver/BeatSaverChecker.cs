@@ -68,6 +68,7 @@ namespace BeatSaverNotifier.BeatSaver
                 });
                 
                 var response = await _httpClient.SendAsync(request);
+                Plugin.Log.Info("erm sending a request!");
 
                 if (!response.IsSuccessStatusCode) throw new Exception("Failed to fetch page with status code " + (int) response.StatusCode);
                 
@@ -77,18 +78,39 @@ namespace BeatSaverNotifier.BeatSaver
                 
                 foreach (var mapJToken in mapArray)
                 {
+                    /*
                     var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
                                                        ?? throw new Exception("Map does not contain ID"));
                     if (parseUnixTimestamp(map?.Uploaded ?? throw new Exception("Map does not have a DateTime")) > PluginConfig.Instance.firstCheckUnixTimeStamp)
                     {
-                        // CHECK IF BEATMAPS ARE THE SAME HERE
+                        if (mapAlreadyDownloaded(map)) continue;
                         
                         maps.Add(map);
-                        page++;
                     }
                     else return maps;
+                    */
+                    
+                    var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
+                                                       ?? throw new Exception("Map does not contain ID"));
+                    Plugin.Log.Info($"{map?.ID} uploaded {map?.Uploaded}");
+                    if (mapAlreadyDownloaded(map)) continue;
+                    if (parseUnixTimestamp(map?.Uploaded ?? throw new Exception("Map does not have an uploaded DateTime")) < PluginConfig.Instance.firstCheckUnixTimeStamp) 
+                        return maps;
+                    
+                    maps.Add(map);
                 }
+                page++;
             } while (true);
+        }
+
+        private bool mapAlreadyDownloaded(Beatmap beatmap)
+        {
+            foreach (var mapHash in beatmap.Versions.Select(i => i.Hash))
+            {
+                if (Loader.GetLevelByHash(mapHash) != null) return true;
+            }
+            
+            return false;
         }
     }
 }
