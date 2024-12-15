@@ -25,18 +25,21 @@ namespace BeatSaverNotifier.UI.BSML
         private BeatSaverChecker _beatSaverChecker;
         private SiraLog _logger;
         private OAuthApi _oAuthApi;
+        private MapQueueManager _mapQueueManager;
         
         private List<Beatmap> _beatmapsInList;
+        private Beatmap _selectedBeatmap;
         
         [UIComponent("mapList")]
         private readonly CustomListTableData customListTableData = null;
         
         [Inject]
-        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker, OAuthApi oAuthApi)
+        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker, OAuthApi oAuthApi, MapQueueManager mapQueueManager)
         {
             this._logger = siraLog;
             this._beatSaverChecker = beatSaverChecker;
             this._oAuthApi = oAuthApi;
+            this._mapQueueManager = mapQueueManager;
         }
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
@@ -45,6 +48,19 @@ namespace BeatSaverNotifier.UI.BSML
         [UIComponent("songAuthorText")] private readonly TextMeshProUGUI songAuthorText = null;
         [UIComponent("songSubNameText")] private readonly TextMeshProUGUI songSubNameText = null;
         [UIComponent("coverArtImage")] private readonly Image coverArtImage = null;
+
+        [UIAction("downloadButtonOnClick")]
+        private async void DownloadButtonOnClick()
+        {
+            try
+            {
+                await _mapQueueManager.addMapToQueue(_selectedBeatmap);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
+        }
         
         [UIAction("testButtonOnClick")]
         private async void testButtonOnClick()
@@ -73,15 +89,15 @@ namespace BeatSaverNotifier.UI.BSML
         {
             try
             {
-                var selectedBeatMap = _beatmapsInList[index];
+                _selectedBeatmap = _beatmapsInList[index];
 
                 _rightPanelContainer.gameObject.SetActive(true);
                 
-                songSubNameText.text = selectedBeatMap.Metadata.SongSubName;
-                mapNameText.text = $"{selectedBeatMap.Metadata.SongName}";
-                songAuthorText.text = selectedBeatMap.Metadata.SongAuthorName;
+                songSubNameText.text = _selectedBeatmap.Metadata.SongSubName;
+                mapNameText.text = $"{_selectedBeatmap.Metadata.SongName}";
+                songAuthorText.text = _selectedBeatmap.Metadata.SongAuthorName;
                 
-                var downloadedImage = await selectedBeatMap.LatestVersion.DownloadCoverImage();
+                var downloadedImage = await _selectedBeatmap.LatestVersion.DownloadCoverImage();
                 coverArtImage.sprite = BeatSaverChecker.createSpriteFromImageBuffer(downloadedImage);
             }
             catch (Exception e)

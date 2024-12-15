@@ -12,14 +12,16 @@ namespace BeatSaverNotifier.FlowCoordinators
     {
         private SiraLog _siraLog;
         private MainFlowCoordinator _mainFlowCoordinator;
-        private BeatSaverNotifierViewController _viewController;
+        private BeatSaverNotifierViewController _mainViewController;
+        private MapQueueViewController _mapQueueViewController;
         
         [Inject]
-        public void Construct(MainFlowCoordinator mainFlowCoordinator, BeatSaverNotifierViewController viewController, SiraLog siraLog)
+        public void Construct(MainFlowCoordinator mainFlowCoordinator, MapQueueViewController mapQueueViewController, BeatSaverNotifierViewController viewController, SiraLog siraLog)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _siraLog = siraLog;
-            this._viewController = viewController;
+            this._mainViewController = viewController;
+            this._mapQueueViewController = mapQueueViewController;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -30,7 +32,7 @@ namespace BeatSaverNotifier.FlowCoordinators
                 {
                     SetTitle("BeatSaverNotifier");
                     showBackButton = true;
-                    ProvideInitialViewControllers(_viewController);
+                    ProvideInitialViewControllers(_mainViewController, rightScreenViewController: _mapQueueViewController);
                 }
             }
             catch (Exception ex)

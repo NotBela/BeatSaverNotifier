@@ -12,6 +12,7 @@ using BeatSaverSharp.Models;
 using BeatSaverSharp.Models.Pages;
 using Newtonsoft.Json.Linq;
 using SiraUtil.Logging;
+using SongCore;
 using UnityEngine;
 using Zenject;
 
@@ -80,6 +81,8 @@ namespace BeatSaverNotifier.BeatSaver
                                                        ?? throw new Exception("Map does not contain ID"));
                     if (parseUnixTimestamp(map?.Uploaded ?? throw new Exception("Map does not have a DateTime")) > PluginConfig.Instance.firstCheckUnixTimeStamp)
                     {
+                        // CHECK IF BEATMAPS ARE THE SAME HERE
+                        
                         maps.Add(map);
                         page++;
                     }

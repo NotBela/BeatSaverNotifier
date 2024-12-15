@@ -15,6 +15,7 @@ namespace BeatSaverNotifier.Installers
             Container.BindInterfacesAndSelfTo<BeatSaverNotifierFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatSaverNotifierViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<CallbackListener>().AsSingle();
+            Container.BindInterfacesAndSelfTo<MapQueueViewController>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }
