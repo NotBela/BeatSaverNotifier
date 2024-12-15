@@ -18,7 +18,7 @@
                         <text id="songAuthorText" color="#CCC"/>
                     </vertical>
                 </horizontal>
-                <primary-button on-click="downloadButtonOnClick" text="Download"/>
+                <primary-button id='downloadButton' on-click="downloadButtonOnClick" text="Download"/>
             </vertical>
         </horizontal>
     </horizontal>

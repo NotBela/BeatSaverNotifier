@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.ViewControllers;
@@ -48,12 +49,16 @@ namespace BeatSaverNotifier.UI.BSML
         [UIComponent("songAuthorText")] private readonly TextMeshProUGUI songAuthorText = null;
         [UIComponent("songSubNameText")] private readonly TextMeshProUGUI songSubNameText = null;
         [UIComponent("coverArtImage")] private readonly Image coverArtImage = null;
+        
+        [UIComponent("downloadButton")] private readonly Button downloadButton = null;
 
         [UIAction("downloadButtonOnClick")]
         private async void DownloadButtonOnClick()
         {
             try
             {
+                downloadButton.SetButtonText("Downloading...");
+                downloadButton.interactable = false;
                 await _mapQueueManager.addMapToQueue(_selectedBeatmap);
             }
             catch (Exception e)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BeatSaverSharp.Models;
@@ -18,7 +19,6 @@ namespace BeatSaverNotifier.BeatSaver
         private readonly HttpClient _httpClient = new HttpClient();
         
         private readonly List<Beatmap> mapQueue = new List<Beatmap>();
-        public Action finishedDownloadingQueue;
         
         private bool _queueIsDownloading = false;
 
@@ -40,7 +40,7 @@ namespace BeatSaverNotifier.BeatSaver
             {
                 _queueIsDownloading = true;
 
-                var tempQueue = mapQueue; // compiler will bitch if this isnt here so just loop in a while true until the queue is empty
+                var tempQueue = new List<Beatmap>(mapQueue); // compiler will bitch if this isnt here so just loop in a while true until the queue is empty
 
                 foreach (var beatmap in tempQueue)
                 {
@@ -51,7 +51,10 @@ namespace BeatSaverNotifier.BeatSaver
 
                         var zippedZipArchive = new ZipArchive(new MemoryStream(content), ZipArchiveMode.Update);
 
-                        zippedZipArchive.ExtractToDirectory(Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels", $"{beatmap.ID} ({beatmap.Metadata.SongName} - {beatmap.Metadata.LevelAuthorName})"));
+                        zippedZipArchive.ExtractToDirectory(Path.Combine(UnityGame.InstallPath, 
+                            "Beat Saber_Data", 
+                            "CustomLevels", 
+                            Path.GetInvalidFileNameChars().Aggregate($"{beatmap.ID} ({beatmap.Metadata.SongName} - {beatmap.Metadata.LevelAuthorName})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
                         mapQueue.Remove(beatmap);
                     }
                     catch (Exception exception)
@@ -63,7 +66,6 @@ namespace BeatSaverNotifier.BeatSaver
                 if (mapQueue.Count > 0)
                     continue;
                 _queueIsDownloading = false;
-                finishedDownloadingQueue?.Invoke();
 
                 break;
             }

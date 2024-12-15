@@ -62,44 +62,61 @@ namespace BeatSaverNotifier.BeatSaver
 
             do
             {
-                var request = await _oAuthApi.addAuthenticationToRequest(new HttpRequestMessage
+                try
                 {
-                    RequestUri = new Uri($"https://api.beatsaver.com/search/text/{page}?followed=true&leaderboard=All&pageSize=20&q=&sortOrder=Latest")
-                });
-                
-                var response = await _httpClient.SendAsync(request);
-                Plugin.Log.Info("erm sending a request!");
-
-                if (!response.IsSuccessStatusCode) throw new Exception("Failed to fetch page with status code " + (int) response.StatusCode);
-                
-                var responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
-                
-                var mapArray = JArray.Parse(responseJson.GetValue("docs")?.ToString() ?? throw new Exception());
-                
-                foreach (var mapJToken in mapArray)
-                {
-                    /*
-                    var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
-                                                       ?? throw new Exception("Map does not contain ID"));
-                    if (parseUnixTimestamp(map?.Uploaded ?? throw new Exception("Map does not have a DateTime")) > PluginConfig.Instance.firstCheckUnixTimeStamp)
+                    var request = await _oAuthApi.addAuthenticationToRequest(new HttpRequestMessage
                     {
-                        if (mapAlreadyDownloaded(map)) continue;
-                        
-                        maps.Add(map);
+                        RequestUri =
+                            new Uri(
+                                $"https://api.beatsaver.com/search/text/{page}?followed=true&leaderboard=All&pageSize=20&q=&sortOrder=Latest")
+                    });
+
+                    var response = await _httpClient.SendAsync(request);
+                    // Plugin.Log.Info("erm sending a request!");
+
+                    if (!response.IsSuccessStatusCode)
+                        throw new Exception("Failed to fetch page with status code " + (int)response.StatusCode);
+
+                    var responseJson = JObject.Parse(await response.Content.ReadAsStringAsync());
+
+                    var mapArray = JArray.Parse(responseJson.GetValue("docs")?.ToString() ?? throw new Exception());
+
+                    foreach (var mapJToken in mapArray)
+                    {
+                        try
+                        {
+                            if (PluginConfig.Instance.keysToIgnore.Contains(mapJToken["id"]?.Value<string>() ?? throw new Exception("Map does not contain ID"))) 
+                                continue;
+                            
+                            var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>()
+                                                               ?? throw new Exception("Map does not contain ID"));
+
+                            if (map == null) continue;
+
+                            // Plugin.Log.Info($"{map.ID} uploaded {map.Uploaded}");
+                            if (mapAlreadyDownloaded(map)) continue;
+                            if (parseUnixTimestamp(map.Uploaded) < PluginConfig.Instance.firstCheckUnixTimeStamp)
+                                return maps;
+
+                            maps.Add(map);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Error($"Could not fetch map data: {e}");
+                        }
                     }
-                    else return maps;
-                    */
-                    
-                    var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>() 
-                                                       ?? throw new Exception("Map does not contain ID"));
-                    Plugin.Log.Info($"{map?.ID} uploaded {map?.Uploaded}");
-                    if (mapAlreadyDownloaded(map)) continue;
-                    if (parseUnixTimestamp(map?.Uploaded ?? throw new Exception("Map does not have an uploaded DateTime")) < PluginConfig.Instance.firstCheckUnixTimeStamp) 
-                        return maps;
-                    
-                    maps.Add(map);
+
+                    page++;
                 }
-                page++;
+                catch (Exception e)
+                {
+                    if (e.Message.Contains("429"))
+                    {
+                        _logger.Info("Rate limit reached! Please consider adding maps to your ignore list.");
+                        await Task.Delay(10000);
+                    }
+                    else throw;
+                }
             } while (true);
         }
 
@@ -107,6 +124,7 @@ namespace BeatSaverNotifier.BeatSaver
         {
             foreach (var mapHash in beatmap.Versions.Select(i => i.Hash))
             {
+
                 if (Loader.GetLevelByHash(mapHash) != null) return true;
             }
             
