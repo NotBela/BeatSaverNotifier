@@ -63,7 +63,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             };
             
             var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode) throw new Exception($"Failed to refresh token with status code {response.StatusCode}");
+            if (!response.IsSuccessStatusCode) throw new Exception($"Failed to refresh token with status code {(int) response.StatusCode}");
             
             var responseContent = await response.Content.ReadAsStringAsync();
             

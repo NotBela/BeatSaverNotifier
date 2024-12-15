@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using BeatSaverSharp.Models;
 using IPA.Config.Data;
@@ -18,5 +19,8 @@ namespace BeatSaverNotifier.Configuration
         public virtual string refreshToken { get; set; } = String.Empty;
 
         public virtual long firstCheckUnixTimeStamp { get; set; } = -1;
+        
+        [UseConverter(typeof(ListConverter<string>))]
+        public virtual List<string> keysToIgnore { get; set; } = new List<string>();
     }
 }
