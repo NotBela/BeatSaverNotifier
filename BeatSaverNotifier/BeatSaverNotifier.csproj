@@ -134,7 +134,4 @@
       <None Remove="UI\BSML\MapQueueView.bsml" />
       <EmbeddedResource Include="UI\BSML\MapQueueView.bsml" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="BeatSaver\Models\" />
-    </ItemGroup>
 </Project>

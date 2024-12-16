@@ -51,7 +51,23 @@ namespace BeatSaverNotifier.UI.BSML
         [UIComponent("coverArtImage")] private readonly Image coverArtImage = null;
         
         [UIComponent("downloadButton")] private readonly Button downloadButton = null;
+        [UIComponent("ignoreButton")] private readonly Button ignoreButton = null;
 
+        [UIAction("ignoreButtonOnClick")]
+        private void IgnoreButtonOnClick()
+        {
+            PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.ID);
+            var idx = _beatmapsInList.IndexOf(_selectedBeatmap);
+            
+            _rightPanelContainer.gameObject.SetActive(false);
+
+            if (idx == -1) return;
+            _selectedBeatmap = null;
+            _beatmapsInList.RemoveAt(idx);
+            customListTableData.Data.RemoveAt(idx);
+            customListTableData.TableView.ReloadData();
+        }
+        
         [UIAction("downloadButtonOnClick")]
         private async void DownloadButtonOnClick()
         {
@@ -59,6 +75,7 @@ namespace BeatSaverNotifier.UI.BSML
             {
                 downloadButton.SetButtonText("Downloading...");
                 downloadButton.interactable = false;
+                ignoreButton.interactable = false;
                 await _mapQueueManager.addMapToQueue(_selectedBeatmap);
             }
             catch (Exception e)

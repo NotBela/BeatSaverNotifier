@@ -5,20 +5,21 @@
             <button id="testButton" text="Refresh" on-click="testButtonOnClick"/>
         </vertical>
         <horizontal id="rightPanelContainer" active="false">
-            <vertical>
-                <horizontal>
-                    <vertical pad-left="10">
-                        <image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage"/>
-                    </vertical>
-                    <vertical pad-left='2'>
-                        <horizontal spacing="3">
-                            <text id="songNameText" font-size="5"/>
-                            <text id="songSubNameText" font-size="5" color="#CCC"/>
+            <vertical pad-left="10">
+                <horizontal horizontal-fit='Unconstrained'>
+                    <image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage"/>
+                    <vertical pad-left='2' bg="panel-top">
+                        <horizontal>
+                            <text id="songNameText" align="Left" font-size="5"/>
+                            <text id="songSubNameText" align="Left" font-size="5" color="#CCC"/>
                         </horizontal>
-                        <text id="songAuthorText" color="#CCC"/>
+                        <text id="songAuthorText" align="Left" color="#CCC"/>
                     </vertical>
                 </horizontal>
-                <primary-button id='downloadButton' on-click="downloadButtonOnClick" text="Download"/>
+                <horizontal spacing="3">
+                    <button id="ignoreButton" on-click="ignoreButtonOnClick" text="Ignore" pref-width='34' pref-height='10'/>
+                    <primary-button id='downloadButton' on-click="downloadButtonOnClick" text="Download" pref-width='34' pref-height='10'/>
+                </horizontal>
             </vertical>
         </horizontal>
     </horizontal>
