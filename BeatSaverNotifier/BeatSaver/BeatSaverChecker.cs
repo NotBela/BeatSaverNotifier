@@ -125,7 +125,11 @@ namespace BeatSaverNotifier.BeatSaver
             foreach (var mapHash in beatmap.Versions.Select(i => i.Hash))
             {
 
-                if (Loader.GetLevelByHash(mapHash) != null) return true;
+                if (Loader.GetLevelByHash(mapHash) != null)
+                {
+                    if (!PluginConfig.Instance.keysToIgnore.Contains(beatmap.ID)) PluginConfig.Instance.keysToIgnore.Add(beatmap.ID);
+                    return true;
+                }
             }
             
             return false;
