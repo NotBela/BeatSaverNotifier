@@ -27,7 +27,8 @@ namespace BeatSaverNotifier.BeatSaver
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly SiraLog _logger;
         
-        public event Action<List<Beatmap>> OnBeatSaverCheck;
+        public event Action<List<Beatmap>> OnBeatSaverCheckFinished;
+        public event Action onBeatSaverCheckStarted;
 
         public BeatSaverChecker(SiraLog logger, OAuthApi oAuthApi)
         {
@@ -47,12 +48,13 @@ namespace BeatSaverNotifier.BeatSaver
         
         public async Task CheckBeatSaverAsync()
         {
+            onBeatSaverCheckStarted?.Invoke();
             if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
                 PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
             
             var maps = await getPagesUntilPastFirstCheckDateTime();
             
-            OnBeatSaverCheck?.Invoke(maps);
+            OnBeatSaverCheckFinished?.Invoke(maps);
         }
 
         private async Task<List<Beatmap>> getPagesUntilPastFirstCheckDateTime()

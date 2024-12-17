@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Auth;
@@ -44,6 +45,8 @@ namespace BeatSaverNotifier.UI.BSML
         }
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
+        [UIComponent("mapListContainer")] private readonly VerticalLayoutGroup _mapListContainer = null;
+        [UIComponent("loadingContainer")] private readonly VerticalLayoutGroup _loadingContainer = null;
         
         [UIComponent("songNameText")] private readonly TextMeshProUGUI mapNameText = null;
         [UIComponent("songAuthorText")] private readonly TextMeshProUGUI songAuthorText = null;
@@ -84,13 +87,12 @@ namespace BeatSaverNotifier.UI.BSML
             }
         }
         
-        [UIAction("testButtonOnClick")]
-        private async void testButtonOnClick()
+        [UIAction("refreshButtonOnClick")]
+        private async void refreshButtonOnClick()
         {
             try
             {
-                if (string.IsNullOrEmpty(PluginConfig.Instance.refreshToken)) _oAuthApi.startNewOAuthFlow();
-                else await _oAuthApi.getNewToken();
+                await _beatSaverChecker.CheckBeatSaverAsync();
             }
             catch (Exception e)
             {
@@ -127,8 +129,15 @@ namespace BeatSaverNotifier.UI.BSML
                 _logger.Error(e);
             }
         }
+
+        private void OnBeatSaverCheckStarted()
+        {
+            _rightPanelContainer.gameObject.SetActive(false);
+            _loadingContainer.gameObject.SetActive(true);
+            _mapListContainer.gameObject.SetActive(false);
+        }
         
-        private async void OnBeatSaverCheck(List<Beatmap> mapList)
+        private async void OnBeatSaverCheckFinished(List<Beatmap> mapList)
         {
             try
             {
@@ -137,11 +146,15 @@ namespace BeatSaverNotifier.UI.BSML
                 var mapTableData = new List<CustomListTableData.CustomCellInfo>();
                 foreach (var map in mapList)
                 {
-                    mapTableData.Add(await getCustomListCellData(map));
+                    var customData = await getCustomListCellData(map);
+                    mapTableData.Add(customData);
                 }
-
+                
                 customListTableData.Data = mapTableData;
                 customListTableData.TableView.ReloadData();
+                
+                _loadingContainer.gameObject.SetActive(false);
+                _mapListContainer.gameObject.SetActive(true);
             }
             catch (Exception e)
             {
@@ -158,9 +171,26 @@ namespace BeatSaverNotifier.UI.BSML
                 beatmap.Metadata.LevelAuthorName, 
                 BeatSaverChecker.createSpriteFromImageBuffer(imgBytes));
         }
-        
-        public void Initialize() => _beatSaverChecker.OnBeatSaverCheck += OnBeatSaverCheck;
-        
-        public void Dispose() => _beatSaverChecker.OnBeatSaverCheck -= OnBeatSaverCheck;
+
+        public async void Initialize()
+        {
+            try
+            {
+                _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
+                _beatSaverChecker.onBeatSaverCheckStarted += OnBeatSaverCheckStarted;
+                
+                await _beatSaverChecker.CheckBeatSaverAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
+        }
+
+        public void Dispose()
+        {
+            _beatSaverChecker.OnBeatSaverCheckFinished -= OnBeatSaverCheckFinished;
+            _beatSaverChecker.onBeatSaverCheckStarted -= OnBeatSaverCheckStarted;
+        }
     }
 }
