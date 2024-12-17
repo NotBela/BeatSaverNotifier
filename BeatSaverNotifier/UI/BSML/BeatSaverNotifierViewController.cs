@@ -132,9 +132,9 @@ namespace BeatSaverNotifier.UI.BSML
 
         private void OnBeatSaverCheckStarted()
         {
-            _rightPanelContainer.gameObject.SetActive(false);
-            _loadingContainer.gameObject.SetActive(true);
-            _mapListContainer.gameObject.SetActive(false);
+            if (_rightPanelContainer != null) _rightPanelContainer.gameObject.SetActive(false);
+            if (_loadingContainer != null) _loadingContainer.gameObject.SetActive(true);
+            if (_mapListContainer != null) _mapListContainer.gameObject.SetActive(false);
         }
         
         private async void OnBeatSaverCheckFinished(List<Beatmap> mapList)
