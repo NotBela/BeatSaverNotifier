@@ -27,4 +27,12 @@
             </vertical>
         </horizontal>
     </horizontal>
+    
+    <modal size-delta-x="50" size-delta-y="30" move-to-center="true" show-event="errorModalShow" hide-event="errorModalHide" click-off-closes="true">
+        <vertical bg="round-rect-panel">
+            <text text="An error occured!"/>
+            <text text="Please check your log for details."/>
+            <button text="OK" on-click="errorModalOkButtonOnClick"/>
+        </vertical>
+    </modal>
 </vertical>

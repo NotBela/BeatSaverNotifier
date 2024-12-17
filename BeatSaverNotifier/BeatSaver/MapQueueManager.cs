@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -12,24 +13,34 @@ using Zenject;
 
 namespace BeatSaverNotifier.BeatSaver
 {
-    public class MapQueueManager : ITickable
+    public class MapQueueManager
     {
         private readonly SiraLog _logger;
         
         private readonly HttpClient _httpClient = new HttpClient();
+
+        public event Action<Beatmap, byte[]> mapAddedToQueue;
+        public event Action<Beatmap> downloadStarted;
+        public event Action<Beatmap, int, bool> downloadFinished;
         
         private readonly List<Beatmap> mapQueue = new List<Beatmap>();
         
         private bool _queueIsDownloading = false;
+        
+        public ReadOnlyCollection<Beatmap> readOnlyQueue => mapQueue.AsReadOnly();
+        
+        private Beatmap _currentlyDownloadingBeatmap;
+        public Beatmap CurrentlyDownloadingBeatmap => _currentlyDownloadingBeatmap;
 
         public MapQueueManager(SiraLog logger)
         {
             _logger = logger;
         }
 
-        public async Task addMapToQueue(Beatmap beatmap)
+        public async Task addMapToQueue(Beatmap beatmap, byte[] cachedSongCover)
         {
             mapQueue.Add(beatmap);
+            mapAddedToQueue?.Invoke(beatmap, cachedSongCover);
 
             if (!_queueIsDownloading) await startSongDownloading();
         }
@@ -44,8 +55,11 @@ namespace BeatSaverNotifier.BeatSaver
 
                 foreach (var beatmap in tempQueue)
                 {
+                    var idx = mapQueue.IndexOf(beatmap);
                     try
                     {
+                        _currentlyDownloadingBeatmap = beatmap;
+                        downloadStarted?.Invoke(beatmap);
                         var response = await _httpClient.GetAsync(beatmap.LatestVersion.DownloadURL);
                         var content = await response.Content.ReadAsByteArrayAsync();
 
@@ -55,10 +69,14 @@ namespace BeatSaverNotifier.BeatSaver
                             "Beat Saber_Data", 
                             "CustomLevels", 
                             Path.GetInvalidFileNameChars().Aggregate($"{beatmap.ID} ({beatmap.Metadata.SongName} - {beatmap.Metadata.LevelAuthorName})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
+                        
                         mapQueue.Remove(beatmap);
+                        _currentlyDownloadingBeatmap = null;
+                        downloadFinished?.Invoke(beatmap, idx, false);
                     }
                     catch (Exception exception)
                     {
+                        downloadFinished?.Invoke(beatmap, idx, false);
                         _logger.Error($"Failed to download beatmap {beatmap.ID}: {exception}");
                     }
                 }
@@ -70,11 +88,6 @@ namespace BeatSaverNotifier.BeatSaver
                 break;
             }
             SongCore.Loader.Instance.RefreshSongs(false);
-        }
-
-        public void Tick()
-        {
-            
         }
     }
 }

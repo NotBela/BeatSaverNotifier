@@ -1,3 +1,4 @@
 ﻿<vertical>
     <text text="Download Queue" font-size="10"/>
+    <list id="queueList" select-cell="onCellSelect" show-scrollbar="true" visible-cells="7"/>
 </vertical>

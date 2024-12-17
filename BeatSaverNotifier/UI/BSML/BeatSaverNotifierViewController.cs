@@ -13,6 +13,7 @@ using BeatSaverNotifier.Configuration;
 using BeatSaverSharp.Models;
 using HMUI;
 using SiraUtil.Logging;
+using SongCore;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,6 +32,9 @@ namespace BeatSaverNotifier.UI.BSML
         
         private List<Beatmap> _beatmapsInList;
         private Beatmap _selectedBeatmap;
+        private byte[] cachedImageCoverArt;
+        
+        [UIParams] private BSMLParserParams parserParams = null;
         
         [UIComponent("mapList")]
         private readonly CustomListTableData customListTableData = null;
@@ -59,7 +63,9 @@ namespace BeatSaverNotifier.UI.BSML
         [UIAction("ignoreButtonOnClick")]
         private void IgnoreButtonOnClick()
         {
-            PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.ID);
+            if (!PluginConfig.Instance.keysToIgnore.Contains(_selectedBeatmap.ID)) 
+                PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.ID);
+            
             var idx = _beatmapsInList.IndexOf(_selectedBeatmap);
             
             _rightPanelContainer.gameObject.SetActive(false);
@@ -79,13 +85,24 @@ namespace BeatSaverNotifier.UI.BSML
                 downloadButton.SetButtonText("Downloading...");
                 downloadButton.interactable = false;
                 ignoreButton.interactable = false;
-                await _mapQueueManager.addMapToQueue(_selectedBeatmap);
+
+                customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
+                customListTableData.TableView.ReloadData();
+                customListTableData.TableView.ClearSelection();
+                
+                await _mapQueueManager.addMapToQueue(_selectedBeatmap, cachedImageCoverArt);
             }
             catch (Exception e)
             {
                 _logger.Error(e);
+                showErrorModal();
             }
         }
+
+        [UIAction("errorModalOkButtonOnClick")]
+        private void errorModalOkButtonOnClick() => parserParams.EmitEvent("errorModalHide");
+        
+        private void showErrorModal() => parserParams.EmitEvent("errorModalShow");
         
         [UIAction("refreshButtonOnClick")]
         private async void refreshButtonOnClick()
@@ -93,10 +110,12 @@ namespace BeatSaverNotifier.UI.BSML
             try
             {
                 await _beatSaverChecker.CheckBeatSaverAsync();
+                showErrorModal();
             }
             catch (Exception e)
             {
                 _logger.Error(e);
+                showErrorModal();
             }
         }
         
@@ -120,13 +139,20 @@ namespace BeatSaverNotifier.UI.BSML
                 songSubNameText.text = _selectedBeatmap.Metadata.SongSubName;
                 mapNameText.text = $"{_selectedBeatmap.Metadata.SongName}";
                 songAuthorText.text = _selectedBeatmap.Metadata.SongAuthorName;
+
+                bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || Loader.GetLevelByHash(_selectedBeatmap.LatestVersion.Hash) != null;
+                downloadButton.interactable = !mapIsQueuedOrDownloaded;
+                ignoreButton.interactable = !mapIsQueuedOrDownloaded;
+                downloadButton.SetButtonText(mapIsQueuedOrDownloaded ? "Downloading..." : "Download");
                 
                 var downloadedImage = await _selectedBeatmap.LatestVersion.DownloadCoverImage();
+                cachedImageCoverArt = downloadedImage;
                 coverArtImage.sprite = BeatSaverChecker.createSpriteFromImageBuffer(downloadedImage);
             }
             catch (Exception e)
             {
                 _logger.Error(e);
+                showErrorModal();
             }
         }
 
@@ -150,7 +176,7 @@ namespace BeatSaverNotifier.UI.BSML
                     mapTableData.Add(customData);
                 }
                 
-                customListTableData.Data = mapTableData;
+                if (customListTableData.Data != null) customListTableData.Data = mapTableData;
                 customListTableData.TableView.ReloadData();
                 
                 _loadingContainer.gameObject.SetActive(false);
@@ -159,6 +185,7 @@ namespace BeatSaverNotifier.UI.BSML
             catch (Exception e)
             {
                 _logger.Error(e);
+                showErrorModal();
             }
         }
 
@@ -184,6 +211,7 @@ namespace BeatSaverNotifier.UI.BSML
             catch (Exception e)
             {
                 _logger.Error(e);
+                showErrorModal();
             }
         }
 
