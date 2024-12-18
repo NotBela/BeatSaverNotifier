@@ -166,14 +166,7 @@ namespace BeatSaverNotifier.UI.BSML
             {
                 this._beatmapsInList = mapList;
                 
-                var mapTableData = new List<CustomListTableData.CustomCellInfo>();
-                foreach (var map in mapList)
-                {
-                    var customData = getCustomListCellData(map);
-                    mapTableData.Add(customData);
-                }
-                
-                if (customListTableData != null) customListTableData.Data = mapTableData;
+                if (customListTableData != null) customListTableData.Data = mapList.Select(i => i.getCustomListCellInfo()).ToList();
                 customListTableData.TableView.ReloadData();
                 
                 _loadingContainer.gameObject.SetActive(false);
@@ -184,14 +177,6 @@ namespace BeatSaverNotifier.UI.BSML
                 _logger.Error(e);
                 showErrorModal();
             }
-        }
-
-        private CustomListTableData.CustomCellInfo getCustomListCellData(BeatmapModel beatmap)
-        {
-            return new CustomListTableData.CustomCellInfo(
-                beatmap.UploadName, 
-                beatmap.Mappers.Join(", "), 
-                beatmap.CoverSprite);
         }
 
         public async void Initialize()

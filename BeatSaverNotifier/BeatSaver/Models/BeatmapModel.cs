@@ -15,7 +15,7 @@ namespace BeatSaverNotifier.BeatSaver.Models
 {
     public class BeatmapModel
     {
-        private static HttpClient _client = new HttpClient();
+        private static readonly HttpClient _client = new HttpClient();
 
         private readonly byte[] _coverBytes;
         public Sprite CoverSprite { get; private set; }
