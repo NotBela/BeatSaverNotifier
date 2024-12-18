@@ -30,7 +30,7 @@ namespace BeatSaverNotifier.UI.BSML
         private OAuthApi _oAuthApi;
         private MapQueueManager _mapQueueManager;
         
-        private List<BeatmapModel> _beatmapsInList;
+        private List<BeatmapModel> _beatmapsInList = new List<BeatmapModel>();
         private BeatmapModel _selectedBeatmap;
         
         [UIParams] private BSMLParserParams parserParams = null;
@@ -165,10 +165,11 @@ namespace BeatSaverNotifier.UI.BSML
             try
             {
                 this._beatmapsInList = mapList;
+
+                if (customListTableData == null) return;
                 
-                if (customListTableData != null) customListTableData.Data = mapList.Select(i => i.getCustomListCellInfo()).ToList();
-                customListTableData.TableView.ReloadData();
-                
+                ReloadTableData();
+
                 _loadingContainer.gameObject.SetActive(false);
                 _mapListContainer.gameObject.SetActive(true);
             }
@@ -177,6 +178,14 @@ namespace BeatSaverNotifier.UI.BSML
                 _logger.Error(e);
                 showErrorModal();
             }
+        }
+
+        public void ReloadTableData()
+        {
+            if (customListTableData == null) return;
+            
+            customListTableData.Data = _beatmapsInList.Select(i => i.getCustomListCellInfo()).ToList();
+            customListTableData.TableView.ReloadData();
         }
 
         public async void Initialize()

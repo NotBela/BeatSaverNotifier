@@ -33,6 +33,7 @@ namespace BeatSaverNotifier.FlowCoordinators
                     SetTitle("BeatSaverNotifier");
                     showBackButton = true;
                     ProvideInitialViewControllers(_mainViewController, rightScreenViewController: _mapQueueViewController);
+                    _mainViewController.ReloadTableData();
                 }
             }
             catch (Exception ex)

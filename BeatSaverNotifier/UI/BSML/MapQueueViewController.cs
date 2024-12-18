@@ -51,7 +51,7 @@ namespace BeatSaverNotifier.UI.BSML
 
         private void mapAddedToQueue(BeatmapModel beatmap)
         {
-            _queueList.Data.Add(new CustomListTableData.CustomCellInfo(beatmap.UploadName, "Queued", beatmap.CoverSprite));
+            _queueList.Data.Add(beatmap.getCustomListCellInfo(true));
             _queueList.TableView.ReloadData();
         }
 
