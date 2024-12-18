@@ -144,8 +144,7 @@ namespace BeatSaverNotifier.UI.BSML
                 ignoreButton.interactable = !mapIsQueuedOrDownloaded;
                 downloadButton.SetButtonText(mapIsQueuedOrDownloaded ? "Downloading..." : "Download");
                 
-                var coverImage = _selectedBeatmap.Cover;
-                coverArtImage.sprite = BeatSaverChecker.createSpriteFromImageBuffer(coverImage);
+                coverArtImage.sprite = _selectedBeatmap.CoverSprite;
             }
             catch (Exception e)
             {
@@ -192,7 +191,7 @@ namespace BeatSaverNotifier.UI.BSML
             return new CustomListTableData.CustomCellInfo(
                 beatmap.UploadName, 
                 beatmap.Mappers.Join(", "), 
-                BeatSaverChecker.createSpriteFromImageBuffer(beatmap.Cover));
+                beatmap.CoverSprite);
         }
 
         public async void Initialize()

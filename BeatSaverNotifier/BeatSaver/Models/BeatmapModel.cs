@@ -5,15 +5,20 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BeatSaberMarkupLanguage.Components;
+using HarmonyLib;
+using ModestTree;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 namespace BeatSaverNotifier.BeatSaver.Models
 {
     public class BeatmapModel
     {
         private static HttpClient _client = new HttpClient();
-        
-        public byte[] Cover { get; private set; }
+
+        private readonly byte[] _coverBytes;
+        public Sprite CoverSprite { get; private set; }
         public string UploadName { get; private set; }
         public string[] VersionHashes { get; private set; }
         
@@ -27,9 +32,10 @@ namespace BeatSaverNotifier.BeatSaver.Models
         public string DownloadUrl { get; private set; }
         public DateTime UploadDate { get; private set; }
 
-        private BeatmapModel(byte[] cover, string uploadName, string[] versionHashes, string songName, string songSubName, string author, string id, string[] mappers, string description, string downloadUrl, DateTime uploadDate)
+        private BeatmapModel(byte[] coverBytes, string uploadName, string[] versionHashes, string songName, string songSubName, string author, string id, string[] mappers, string description, string downloadUrl, DateTime uploadDate)
         {
-            this.Cover = cover;
+            this._coverBytes = coverBytes;
+            this.CoverSprite = getSpriteFromImageBuffer(coverBytes);
             this.UploadName = uploadName;
             this.VersionHashes = versionHashes;
             this.SongName = songName;
@@ -42,6 +48,17 @@ namespace BeatSaverNotifier.BeatSaver.Models
             this.UploadDate = uploadDate;
         }
 
+        public CustomListTableData.CustomCellInfo getCustomListCellInfo(bool queuedText = false) => 
+            new CustomListTableData.CustomCellInfo(this.UploadName, queuedText ? "Queued" : this.Mappers.Join(", "), getSpriteFromImageBuffer(_coverBytes));
+        
+        private Sprite getSpriteFromImageBuffer(byte[] buffer)
+        {
+            var tex = new Texture2D(2, 2);
+            ImageConversion.LoadImage(tex, buffer);
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+        }
+            
         public static async Task<BeatmapModel> Parse(string json)
         {
             var jsonObject = JObject.Parse(json);

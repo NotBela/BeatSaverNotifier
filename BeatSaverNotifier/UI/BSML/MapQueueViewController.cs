@@ -32,8 +32,7 @@ namespace BeatSaverNotifier.UI.BSML
         {
             try
             {
-
-                _queueList.Data = _mapQueueManager.readOnlyQueue.Select(getCustomCellInfo).ToList();
+                _queueList.Data = _mapQueueManager.readOnlyQueue.Select(i => i.getCustomListCellInfo(true)).ToList();
                 _queueList.TableView.ReloadData();
                 // make list not interactable here
             }
@@ -42,12 +41,6 @@ namespace BeatSaverNotifier.UI.BSML
                 _logger.Error(e);
             }
         }
-        
-        private CustomListTableData.CustomCellInfo getCustomCellInfo(BeatmapModel i) => new CustomListTableData.CustomCellInfo(
-            i.UploadName, 
-            _mapQueueManager.CurrentlyDownloadingBeatmap == i ? "Downloading..." : "In queue", 
-            BeatSaverChecker.createSpriteFromImageBuffer(i.Cover)
-        );
         
         [Inject]
         void Inject(MapQueueManager mapQueueManager, SiraLog logger)
@@ -58,7 +51,7 @@ namespace BeatSaverNotifier.UI.BSML
 
         private void mapAddedToQueue(BeatmapModel beatmap)
         {
-            _queueList.Data.Add(new CustomListTableData.CustomCellInfo(beatmap.UploadName, "In queue", BeatSaverChecker.createSpriteFromImageBuffer(beatmap.Cover)));
+            _queueList.Data.Add(new CustomListTableData.CustomCellInfo(beatmap.UploadName, "Queued", beatmap.CoverSprite));
             _queueList.TableView.ReloadData();
         }
 
