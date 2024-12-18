@@ -9,6 +9,7 @@ using BeatSaberMarkupLanguage.Tags;
 using BeatSaberMarkupLanguage.TypeHandlers;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
+using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverSharp.Models;
 using HMUI;
 using SiraUtil.Logging;
@@ -27,17 +28,12 @@ namespace BeatSaverNotifier.UI.BSML
         [UIAction("onCellSelect")] private void onCellSelect(TableView tableView, int row){} // do nothing
 
         [UIAction("#post-parse")]
-        async void postParse()
+        void postParse()
         {
             try
             {
-                var data = new List<CustomListTableData.CustomCellInfo>();
-                foreach (var map in _mapQueueManager.readOnlyQueue)
-                {
-                    data = data.Prepend(await getCustomCellInfo(map)).ToList();
-                }
 
-                _queueList.Data = data;
+                _queueList.Data = _mapQueueManager.readOnlyQueue.Select(getCustomCellInfo).ToList();
                 _queueList.TableView.ReloadData();
                 // make list not interactable here
             }
@@ -47,10 +43,10 @@ namespace BeatSaverNotifier.UI.BSML
             }
         }
         
-        private async Task<CustomListTableData.CustomCellInfo> getCustomCellInfo(Beatmap i) => new CustomListTableData.CustomCellInfo(
-            i.Name, 
+        private CustomListTableData.CustomCellInfo getCustomCellInfo(BeatmapModel i) => new CustomListTableData.CustomCellInfo(
+            i.UploadName, 
             _mapQueueManager.CurrentlyDownloadingBeatmap == i ? "Downloading..." : "In queue", 
-            BeatSaverChecker.createSpriteFromImageBuffer(await i.LatestVersion.DownloadCoverImage())
+            BeatSaverChecker.createSpriteFromImageBuffer(i.Cover)
         );
         
         [Inject]
@@ -60,13 +56,13 @@ namespace BeatSaverNotifier.UI.BSML
             _logger = logger;
         }
 
-        private void mapAddedToQueue(Beatmap beatmap, byte[] songCoverArt)
+        private void mapAddedToQueue(BeatmapModel beatmap)
         {
-            _queueList.Data.Add(new CustomListTableData.CustomCellInfo(beatmap.Name, "In queue", BeatSaverChecker.createSpriteFromImageBuffer(songCoverArt)));
+            _queueList.Data.Add(new CustomListTableData.CustomCellInfo(beatmap.UploadName, "In queue", BeatSaverChecker.createSpriteFromImageBuffer(beatmap.Cover)));
             _queueList.TableView.ReloadData();
         }
 
-        private void onDownloadStarted(Beatmap beatmap)
+        private void onDownloadStarted(BeatmapModel beatmap)
         {
             if (_mapQueueManager.readOnlyQueue.IndexOf(beatmap) == -1) return;
             
@@ -74,7 +70,7 @@ namespace BeatSaverNotifier.UI.BSML
             _queueList.TableView.ReloadData();
         }
 
-        private void onDownloadFinished(Beatmap beatmap, int indexToRemove, bool wasSuccessful)
+        private void onDownloadFinished(BeatmapModel beatmap, int indexToRemove, bool wasSuccessful)
         {
             _queueList.Data.RemoveAt(indexToRemove);
             _queueList.TableView.ReloadData();

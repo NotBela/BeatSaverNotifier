@@ -6,8 +6,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverSharp.Models;
 using IPA.Utilities;
+using ModestTree;
 using SiraUtil.Logging;
 using Zenject;
 
@@ -19,28 +21,28 @@ namespace BeatSaverNotifier.BeatSaver
         
         private readonly HttpClient _httpClient = new HttpClient();
 
-        public event Action<Beatmap, byte[]> mapAddedToQueue;
-        public event Action<Beatmap> downloadStarted;
-        public event Action<Beatmap, int, bool> downloadFinished;
+        public event Action<BeatmapModel> mapAddedToQueue;
+        public event Action<BeatmapModel> downloadStarted;
+        public event Action<BeatmapModel, int, bool> downloadFinished;
         
-        private readonly List<Beatmap> mapQueue = new List<Beatmap>();
+        private readonly List<BeatmapModel> mapQueue = new List<BeatmapModel>();
         
         private bool _queueIsDownloading = false;
         
-        public ReadOnlyCollection<Beatmap> readOnlyQueue => mapQueue.AsReadOnly();
+        public ReadOnlyCollection<BeatmapModel> readOnlyQueue => mapQueue.AsReadOnly();
         
-        private Beatmap _currentlyDownloadingBeatmap;
-        public Beatmap CurrentlyDownloadingBeatmap => _currentlyDownloadingBeatmap;
+        private BeatmapModel _currentlyDownloadingBeatmap;
+        public BeatmapModel CurrentlyDownloadingBeatmap => _currentlyDownloadingBeatmap;
 
         public MapQueueManager(SiraLog logger)
         {
             _logger = logger;
         }
 
-        public async Task addMapToQueue(Beatmap beatmap, byte[] cachedSongCover)
+        public async Task addMapToQueue(BeatmapModel beatmap)
         {
             mapQueue.Add(beatmap);
-            mapAddedToQueue?.Invoke(beatmap, cachedSongCover);
+            mapAddedToQueue?.Invoke(beatmap);
 
             if (!_queueIsDownloading) await startSongDownloading();
         }
@@ -51,7 +53,7 @@ namespace BeatSaverNotifier.BeatSaver
             {
                 _queueIsDownloading = true;
 
-                var tempQueue = new List<Beatmap>(mapQueue); // compiler will bitch if this isnt here so just loop in a while true until the queue is empty
+                var tempQueue = new List<BeatmapModel>(mapQueue); // compiler will bitch if this isnt here so just loop in a while true until the queue is empty
 
                 foreach (var beatmap in tempQueue)
                 {
@@ -60,7 +62,7 @@ namespace BeatSaverNotifier.BeatSaver
                     {
                         _currentlyDownloadingBeatmap = beatmap;
                         downloadStarted?.Invoke(beatmap);
-                        var response = await _httpClient.GetAsync(beatmap.LatestVersion.DownloadURL);
+                        var response = await _httpClient.GetAsync(beatmap.DownloadUrl);
                         var content = await response.Content.ReadAsByteArrayAsync();
 
                         var zippedZipArchive = new ZipArchive(new MemoryStream(content), ZipArchiveMode.Update);
@@ -68,7 +70,7 @@ namespace BeatSaverNotifier.BeatSaver
                         zippedZipArchive.ExtractToDirectory(Path.Combine(UnityGame.InstallPath, 
                             "Beat Saber_Data", 
                             "CustomLevels", 
-                            Path.GetInvalidFileNameChars().Aggregate($"{beatmap.ID} ({beatmap.Metadata.SongName} - {beatmap.Metadata.LevelAuthorName})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
+                            Path.GetInvalidFileNameChars().Aggregate($"{beatmap.Id} ({beatmap.SongName} - {beatmap.Mappers.Join(", ")})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
                         
                         mapQueue.Remove(beatmap);
                         _currentlyDownloadingBeatmap = null;
@@ -77,7 +79,7 @@ namespace BeatSaverNotifier.BeatSaver
                     catch (Exception exception)
                     {
                         downloadFinished?.Invoke(beatmap, idx, false);
-                        _logger.Error($"Failed to download beatmap {beatmap.ID}: {exception}");
+                        _logger.Error($"Failed to download beatmap {beatmap.Id}: {exception}");
                     }
                 }
 

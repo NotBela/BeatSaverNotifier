@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using BeatSaverNotifier.BeatSaver.Auth;
+using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.Configuration;
 using BeatSaverSharp;
 using BeatSaverSharp.Models;
@@ -27,7 +28,7 @@ namespace BeatSaverNotifier.BeatSaver
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly SiraLog _logger;
         
-        public event Action<List<Beatmap>> OnBeatSaverCheckFinished;
+        public event Action<List<BeatmapModel>> OnBeatSaverCheckFinished;
         public event Action onBeatSaverCheckStarted;
 
         public BeatSaverChecker(SiraLog logger, OAuthApi oAuthApi)
@@ -57,9 +58,9 @@ namespace BeatSaverNotifier.BeatSaver
             OnBeatSaverCheckFinished?.Invoke(maps);
         }
 
-        private async Task<List<Beatmap>> getPagesUntilPastFirstCheckDateTime()
+        private async Task<List<BeatmapModel>> getPagesUntilPastFirstCheckDateTime()
         {
-            var maps = new List<Beatmap>();
+            var maps = new List<BeatmapModel>();
             var page = 0;
 
             do
@@ -89,15 +90,12 @@ namespace BeatSaverNotifier.BeatSaver
                         {
                             if (PluginConfig.Instance.keysToIgnore.Contains(mapJToken["id"]?.Value<string>() ?? throw new Exception("Map does not contain ID"))) 
                                 continue;
-                            
-                            var map = await _beatSaver.Beatmap(mapJToken["id"]?.Value<string>()
-                                                               ?? throw new Exception("Map does not contain ID"));
 
-                            if (map == null) continue;
+                            var map = await BeatmapModel.Parse(mapJToken.ToString());
 
                             // Plugin.Log.Info($"{map.ID} uploaded {map.Uploaded}");
                             if (mapAlreadyDownloaded(map)) continue;
-                            if (parseUnixTimestamp(map.Uploaded) < PluginConfig.Instance.firstCheckUnixTimeStamp)
+                            if (parseUnixTimestamp(map.UploadDate) < PluginConfig.Instance.firstCheckUnixTimeStamp)
                                 return maps;
 
                             maps.Add(map);
@@ -122,14 +120,13 @@ namespace BeatSaverNotifier.BeatSaver
             } while (true);
         }
 
-        private bool mapAlreadyDownloaded(Beatmap beatmap)
+        private bool mapAlreadyDownloaded(BeatmapModel beatmap)
         {
-            foreach (var mapHash in beatmap.Versions.Select(i => i.Hash))
+            foreach (var mapHash in beatmap.VersionHashes)
             {
 
                 if (Loader.GetLevelByHash(mapHash) != null)
                 {
-                    if (!PluginConfig.Instance.keysToIgnore.Contains(beatmap.ID)) PluginConfig.Instance.keysToIgnore.Add(beatmap.ID);
                     return true;
                 }
             }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -9,9 +8,10 @@ using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Auth;
+using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.Configuration;
-using BeatSaverSharp.Models;
 using HMUI;
+using ModestTree;
 using SiraUtil.Logging;
 using SongCore;
 using TMPro;
@@ -30,9 +30,8 @@ namespace BeatSaverNotifier.UI.BSML
         private OAuthApi _oAuthApi;
         private MapQueueManager _mapQueueManager;
         
-        private List<Beatmap> _beatmapsInList;
-        private Beatmap _selectedBeatmap;
-        private byte[] cachedImageCoverArt;
+        private List<BeatmapModel> _beatmapsInList;
+        private BeatmapModel _selectedBeatmap;
         
         [UIParams] private BSMLParserParams parserParams = null;
         
@@ -63,8 +62,8 @@ namespace BeatSaverNotifier.UI.BSML
         [UIAction("ignoreButtonOnClick")]
         private void IgnoreButtonOnClick()
         {
-            if (!PluginConfig.Instance.keysToIgnore.Contains(_selectedBeatmap.ID)) 
-                PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.ID);
+            if (!PluginConfig.Instance.keysToIgnore.Contains(_selectedBeatmap.Id)) 
+                PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.Id);
             
             var idx = _beatmapsInList.IndexOf(_selectedBeatmap);
             
@@ -90,7 +89,7 @@ namespace BeatSaverNotifier.UI.BSML
                 customListTableData.TableView.ReloadData();
                 customListTableData.TableView.ClearSelection();
                 
-                await _mapQueueManager.addMapToQueue(_selectedBeatmap, cachedImageCoverArt);
+                await _mapQueueManager.addMapToQueue(_selectedBeatmap);
             }
             catch (Exception e)
             {
@@ -128,7 +127,7 @@ namespace BeatSaverNotifier.UI.BSML
         }
 
         [UIAction("onCellSelect")]
-        private async void onCellSelected(TableView tableView, int index)
+        private void onCellSelected(TableView tableView, int index)
         {
             try
             {
@@ -136,18 +135,17 @@ namespace BeatSaverNotifier.UI.BSML
 
                 _rightPanelContainer.gameObject.SetActive(true);
                 
-                songSubNameText.text = _selectedBeatmap.Metadata.SongSubName;
-                mapNameText.text = $"{_selectedBeatmap.Metadata.SongName}";
-                songAuthorText.text = _selectedBeatmap.Metadata.SongAuthorName;
+                songSubNameText.text = _selectedBeatmap.SongSubName;
+                mapNameText.text = $"{_selectedBeatmap.SongName}";
+                songAuthorText.text = _selectedBeatmap.Author;
 
-                bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || Loader.GetLevelByHash(_selectedBeatmap.LatestVersion.Hash) != null;
+                bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || Loader.GetLevelByHash(_selectedBeatmap.VersionHashes[0]) != null;
                 downloadButton.interactable = !mapIsQueuedOrDownloaded;
                 ignoreButton.interactable = !mapIsQueuedOrDownloaded;
                 downloadButton.SetButtonText(mapIsQueuedOrDownloaded ? "Downloading..." : "Download");
                 
-                var downloadedImage = await _selectedBeatmap.LatestVersion.DownloadCoverImage();
-                cachedImageCoverArt = downloadedImage;
-                coverArtImage.sprite = BeatSaverChecker.createSpriteFromImageBuffer(downloadedImage);
+                var coverImage = _selectedBeatmap.Cover;
+                coverArtImage.sprite = BeatSaverChecker.createSpriteFromImageBuffer(coverImage);
             }
             catch (Exception e)
             {
@@ -163,7 +161,7 @@ namespace BeatSaverNotifier.UI.BSML
             if (_mapListContainer != null) _mapListContainer.gameObject.SetActive(false);
         }
         
-        private async void OnBeatSaverCheckFinished(List<Beatmap> mapList)
+        private void OnBeatSaverCheckFinished(List<BeatmapModel> mapList)
         {
             try
             {
@@ -172,11 +170,11 @@ namespace BeatSaverNotifier.UI.BSML
                 var mapTableData = new List<CustomListTableData.CustomCellInfo>();
                 foreach (var map in mapList)
                 {
-                    var customData = await getCustomListCellData(map);
+                    var customData = getCustomListCellData(map);
                     mapTableData.Add(customData);
                 }
                 
-                if (customListTableData.Data != null) customListTableData.Data = mapTableData;
+                if (customListTableData != null) customListTableData.Data = mapTableData;
                 customListTableData.TableView.ReloadData();
                 
                 _loadingContainer.gameObject.SetActive(false);
@@ -189,14 +187,12 @@ namespace BeatSaverNotifier.UI.BSML
             }
         }
 
-        private async Task<CustomListTableData.CustomCellInfo> getCustomListCellData(Beatmap beatmap)
+        private CustomListTableData.CustomCellInfo getCustomListCellData(BeatmapModel beatmap)
         {
-            var imgBytes = await beatmap.LatestVersion.DownloadCoverImage();
-            
             return new CustomListTableData.CustomCellInfo(
-                beatmap.Name, 
-                beatmap.Metadata.LevelAuthorName, 
-                BeatSaverChecker.createSpriteFromImageBuffer(imgBytes));
+                beatmap.UploadName, 
+                beatmap.Mappers.Join(", "), 
+                BeatSaverChecker.createSpriteFromImageBuffer(beatmap.Cover));
         }
 
         public async void Initialize()
