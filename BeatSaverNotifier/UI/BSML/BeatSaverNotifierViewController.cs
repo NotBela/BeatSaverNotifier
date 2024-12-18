@@ -11,7 +11,6 @@ using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.Configuration;
 using HMUI;
-using ModestTree;
 using SiraUtil.Logging;
 using SongCore;
 using TMPro;

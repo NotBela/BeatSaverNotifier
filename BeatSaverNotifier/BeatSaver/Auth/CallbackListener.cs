@@ -12,7 +12,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
         [Inject] private readonly SiraLog _logger = null;
         [Inject] private readonly OAuthApi _oAuthApi = null;
         
-        private readonly HttpListener _listener = new HttpListener
+        private HttpListener _listener = new HttpListener
         {
             Prefixes = { callbackUri }
         };
@@ -45,8 +45,15 @@ namespace BeatSaverNotifier.BeatSaver.Auth
                         responsePage.ContentType = "text/html";
                         responsePage.StatusCode = 200;
                         responsePage.ContentLength64 = responseBuffer.Length;
-                        
+
                         await responsePage.OutputStream.WriteAsync(responseBuffer, 0, responseBuffer.Length);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        _listener = new HttpListener()
+                        {
+                            Prefixes = { callbackUri }
+                        };
                     }
                     catch (Exception e)
                     {
@@ -55,8 +62,12 @@ namespace BeatSaverNotifier.BeatSaver.Auth
                 }
             });
         }
-        
-        private void stop() => listen = false;
+
+        private void stop()
+        {
+            listen = false;
+            this._listener.Stop();
+        }
         
         public void Initialize()
         {
