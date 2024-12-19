@@ -159,7 +159,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             try
             {
                 flowCoordinator.presentMapListAndQueueViewController();
-                setBeatmapList(mapList);
+                _beatmapsInList = mapList;
                 ReloadTableData();
             }
             catch (Exception e)
@@ -167,7 +167,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 _logger.Error(e);
             }
         }
-        public void setBeatmapList(List<BeatmapModel> mapList) => _beatmapsInList = mapList;
+        
         public void ReloadTableData()
         {
             if (customListTableData == null) return;

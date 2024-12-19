@@ -33,7 +33,7 @@ namespace BeatSaverNotifier.BeatSaver
         public event Action onBeatSaverCheckStarted;
         
         public bool isChecking { get; private set; }
-        public ReadOnlyCollection<BeatmapModel> cachedMaps { get; private set; }
+        public ReadOnlyCollection<BeatmapModel> cachedMaps { get; private set; } = new ReadOnlyCollection<BeatmapModel>(Array.Empty<BeatmapModel>());
 
         public BeatSaverChecker(SiraLog logger, OAuthApi oAuthApi)
         {

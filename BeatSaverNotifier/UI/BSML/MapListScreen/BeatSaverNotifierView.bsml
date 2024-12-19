@@ -9,7 +9,7 @@
                 <horizontal horizontal-fit='PreferredSize'>
                     <image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage"/>
                     <vertical pad-left='2'>
-                        <horizontal>
+                        <horizontal spacing="1">
                             <text id="songNameText" align="Left" font-size="5"/>
                             <text id="songSubNameText" align="Left" font-size="5" color="#CCC"/>
                         </horizontal>
