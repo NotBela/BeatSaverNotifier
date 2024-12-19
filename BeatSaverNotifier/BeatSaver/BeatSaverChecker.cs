@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -30,6 +31,9 @@ namespace BeatSaverNotifier.BeatSaver
         
         public event Action<List<BeatmapModel>> OnBeatSaverCheckFinished;
         public event Action onBeatSaverCheckStarted;
+        
+        public bool isChecking { get; private set; }
+        public ReadOnlyCollection<BeatmapModel> cachedMaps { get; private set; }
 
         public BeatSaverChecker(SiraLog logger, OAuthApi oAuthApi)
         {
@@ -42,12 +46,15 @@ namespace BeatSaverNotifier.BeatSaver
         public async Task CheckBeatSaverAsync()
         {
             onBeatSaverCheckStarted?.Invoke();
+            isChecking = true;
             if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
                 PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
             
             var maps = await getPagesUntilPastFirstCheckDateTime();
             
             OnBeatSaverCheckFinished?.Invoke(maps);
+            cachedMaps = maps.AsReadOnly();
+            isChecking = false;
         }
 
         private async Task<List<BeatmapModel>> getPagesUntilPastFirstCheckDateTime()
@@ -85,7 +92,6 @@ namespace BeatSaverNotifier.BeatSaver
 
                             var map = await BeatmapModel.Parse(mapJToken.ToString());
 
-                            // Plugin.Log.Info($"{map.ID} uploaded {map.Uploaded}");
                             if (mapAlreadyDownloaded(map)) continue;
                             if (parseUnixTimestamp(map.UploadDate) < PluginConfig.Instance.firstCheckUnixTimeStamp)
                                 return maps;

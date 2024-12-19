@@ -129,9 +129,14 @@
         <None Include="BeatSaverNotifier.csproj.user" Condition="Exists('BeatSaverNotifier.csproj.user')"/>
     </ItemGroup>
     <ItemGroup>
+      <EmbeddedResource Include="UI\BSML\MapListScreen\MapQueueView.bsml" />
       <None Remove="UI\BSML\BeatSaverNotifierView.bsml" />
-      <EmbeddedResource Include="UI\BSML\BeatSaverNotifierView.bsml" />
       <None Remove="UI\BSML\MapQueueView.bsml" />
-      <EmbeddedResource Include="UI\BSML\MapQueueView.bsml" />
+      <EmbeddedResource Include="UI\BSML\MapListScreen\BeatSaverNotifierView.bsml" />
+      <None Remove="UI\BSML\LoadingScreen\LoadingScreenView.bsml" />
+      <EmbeddedResource Include="UI\BSML\LoadingScreen\LoadingScreenView.bsml" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="UI\BSML\LoginScreen\" />
     </ItemGroup>
 </Project>

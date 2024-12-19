@@ -83,9 +83,9 @@ namespace BeatSaverNotifier.BeatSaver.Models
             var primaryUploader = jsonObject["uploader"]?["name"]?.Value<string>();
             var collab = new List<string>(){primaryUploader};
             
-            if (jsonObject.ContainsKey("collaborators"))
+            if (jsonObject.TryGetValue("collaborators", out var value))
             {
-                var collaborators = JArray.Parse(jsonObject["collaborators"]?.ToString());
+                var collaborators = JArray.Parse(value?.ToString());
                 collab.AddRange(collaborators.Select(collaborator => collaborator["name"]?.Value<string>()));
             }
             

@@ -10,6 +10,7 @@ using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.Configuration;
+using BeatSaverNotifier.FlowCoordinators;
 using HMUI;
 using SiraUtil.Logging;
 using SongCore;
@@ -18,16 +19,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace BeatSaverNotifier.UI.BSML
+namespace BeatSaverNotifier.UI.BSML.MapListScreen
 {
-    [ViewDefinition("BeatSaverNotifier.UI.BSML.BeatSaverNotifierView.bsml")]
-    [HotReload(RelativePathToLayout = @"../UI/BSML/BeatSaverNotifierView.bsml")]
+    [ViewDefinition("BeatSaverNotifier.UI.BSML.MapListScreen.BeatSaverNotifierView.bsml")]
     internal class BeatSaverNotifierViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         private BeatSaverChecker _beatSaverChecker;
         private SiraLog _logger;
         private OAuthApi _oAuthApi;
         private MapQueueManager _mapQueueManager;
+        private BeatSaverNotifierFlowCoordinator flowCoordinator;
         
         private List<BeatmapModel> _beatmapsInList = new List<BeatmapModel>();
         private BeatmapModel _selectedBeatmap;
@@ -38,17 +39,16 @@ namespace BeatSaverNotifier.UI.BSML
         private readonly CustomListTableData customListTableData = null;
         
         [Inject]
-        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker, OAuthApi oAuthApi, MapQueueManager mapQueueManager)
+        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker, OAuthApi oAuthApi, MapQueueManager mapQueueManager, BeatSaverNotifierFlowCoordinator flowCoordinator)
         {
             this._logger = siraLog;
             this._beatSaverChecker = beatSaverChecker;
             this._oAuthApi = oAuthApi;
             this._mapQueueManager = mapQueueManager;
+            this.flowCoordinator = flowCoordinator;
         }
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
-        [UIComponent("mapListContainer")] private readonly VerticalLayoutGroup _mapListContainer = null;
-        [UIComponent("loadingContainer")] private readonly VerticalLayoutGroup _loadingContainer = null;
         
         [UIComponent("songNameText")] private readonly TextMeshProUGUI mapNameText = null;
         [UIComponent("songAuthorText")] private readonly TextMeshProUGUI songAuthorText = null;
@@ -107,8 +107,9 @@ namespace BeatSaverNotifier.UI.BSML
         {
             try
             {
+                _rightPanelContainer.gameObject.SetActive(false);
+                customListTableData.TableView.ClearSelection();
                 await _beatSaverChecker.CheckBeatSaverAsync();
-                showErrorModal();
             }
             catch (Exception e)
             {
@@ -118,11 +119,12 @@ namespace BeatSaverNotifier.UI.BSML
         }
         
         [UIAction("#post-parse")]
-
         void postParse()
         {
             coverArtImage.material = Resources.FindObjectsOfTypeAll<Material>()
                 .FirstOrDefault(m => m.name == "UINoGlowRoundEdge");
+            _beatmapsInList = _beatSaverChecker.cachedMaps.ToList();
+            ReloadTableData();
         }
 
         [UIAction("onCellSelect")]
@@ -151,34 +153,21 @@ namespace BeatSaverNotifier.UI.BSML
                 showErrorModal();
             }
         }
-
-        private void OnBeatSaverCheckStarted()
-        {
-            if (_rightPanelContainer != null) _rightPanelContainer.gameObject.SetActive(false);
-            if (_loadingContainer != null) _loadingContainer.gameObject.SetActive(true);
-            if (_mapListContainer != null) _mapListContainer.gameObject.SetActive(false);
-        }
         
         private void OnBeatSaverCheckFinished(List<BeatmapModel> mapList)
         {
             try
             {
-                this._beatmapsInList = mapList;
-
-                if (customListTableData == null) return;
-                
+                flowCoordinator.presentMapListAndQueueViewController();
+                setBeatmapList(mapList);
                 ReloadTableData();
-
-                _loadingContainer.gameObject.SetActive(false);
-                _mapListContainer.gameObject.SetActive(true);
             }
             catch (Exception e)
             {
                 _logger.Error(e);
-                showErrorModal();
             }
         }
-
+        public void setBeatmapList(List<BeatmapModel> mapList) => _beatmapsInList = mapList;
         public void ReloadTableData()
         {
             if (customListTableData == null) return;
@@ -192,7 +181,6 @@ namespace BeatSaverNotifier.UI.BSML
             try
             {
                 _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
-                _beatSaverChecker.onBeatSaverCheckStarted += OnBeatSaverCheckStarted;
                 
                 await _beatSaverChecker.CheckBeatSaverAsync();
             }
@@ -206,7 +194,6 @@ namespace BeatSaverNotifier.UI.BSML
         public void Dispose()
         {
             _beatSaverChecker.OnBeatSaverCheckFinished -= OnBeatSaverCheckFinished;
-            _beatSaverChecker.onBeatSaverCheckStarted -= OnBeatSaverCheckStarted;
         }
     }
 }

@@ -3,6 +3,8 @@ using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.FlowCoordinators;
 using BeatSaverNotifier.UI;
 using BeatSaverNotifier.UI.BSML;
+using BeatSaverNotifier.UI.BSML.LoadingScreen;
+using BeatSaverNotifier.UI.BSML.MapListScreen;
 using Zenject;
 
 namespace BeatSaverNotifier.Installers
@@ -16,6 +18,7 @@ namespace BeatSaverNotifier.Installers
             Container.BindInterfacesAndSelfTo<BeatSaverNotifierViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<CallbackListener>().AsSingle();
             Container.BindInterfacesAndSelfTo<MapQueueViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<LoadingScreenViewController>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }

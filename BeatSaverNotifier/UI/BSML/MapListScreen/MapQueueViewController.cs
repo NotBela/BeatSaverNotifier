@@ -17,7 +17,7 @@ using Zenject;
 
 namespace BeatSaverNotifier.UI.BSML
 {
-    [ViewDefinition("BeatSaverNotifier.UI.BSML.MapQueueView.bsml")]
+    [ViewDefinition("BeatSaverNotifier.UI.BSML.MapListScreen.MapQueueView.bsml")]
     public class MapQueueViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         private MapQueueManager _mapQueueManager;

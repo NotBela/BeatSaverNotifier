@@ -1,10 +1,6 @@
 <vertical>
     <horizontal>
-        <vertical id="loadingContainer" active="true">
-            <text text="Loading..."/>
-            <loading/>
-        </vertical>
-        <vertical id="mapListContainer" active="false">
+        <vertical id="mapListContainer">
             <list id="mapList" select-cell="onCellSelect" show-scrollbar="true" visible-cells="7" bind-value="true"/>
             <button text="Refresh" on-click="refreshButtonOnClick"/>
         </vertical>
