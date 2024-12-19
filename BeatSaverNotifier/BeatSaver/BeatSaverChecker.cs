@@ -45,12 +45,15 @@ namespace BeatSaverNotifier.BeatSaver
         
         public async Task CheckBeatSaverAsync()
         {
+            if (!PluginConfig.Instance.isSignedIn) return;
+            if (isChecking) return;
+            
             onBeatSaverCheckStarted?.Invoke();
             isChecking = true;
-            if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
-                PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
             
             var maps = await getPagesUntilPastFirstCheckDateTime();
+            if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
+                PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
             
             OnBeatSaverCheckFinished?.Invoke(maps);
             cachedMaps = maps.AsReadOnly();

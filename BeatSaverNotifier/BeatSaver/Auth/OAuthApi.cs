@@ -19,6 +19,9 @@ namespace BeatSaverNotifier.BeatSaver.Auth
         private const string clientSecret = "0193baef-a69c-7569-ba03-52730b0d9fd4";
         private string lastState = String.Empty;
 
+        public event Action onAccessCodeAquired;
+        public event Action onAccessTokenAquired;
+
         public OAuthApi()
         {
             _httpClient = new HttpClient();
@@ -45,7 +48,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
                                              $"&redirect_uri={CallbackListener.callbackUri}");
         }
 
-        public async Task<string> getNewToken()
+        private async Task<string> getNewToken()
         {
             var request = new HttpRequestMessage
             {
@@ -81,6 +84,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
 
         internal async Task<string> exchangeCodeForToken(string code, string state)
         {
+            onAccessCodeAquired?.Invoke();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
@@ -104,6 +108,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             var parsedJson = JObject.Parse(responseContent);
             
             PluginConfig.Instance.refreshToken = parsedJson["refresh_token"]?.Value<string>();
+            onAccessTokenAquired?.Invoke();
             return parsedJson["refresh_token"]?.Value<string>();
         }
     }

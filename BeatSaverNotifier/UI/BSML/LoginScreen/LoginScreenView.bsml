@@ -1,0 +1,9 @@
+<vertical spacing="10" child-align="MiddleCenter">
+    <text text="Login with BeatSaver" font-size="10"/>
+    <vertical>
+        <text text="This mod requires you to login with BeatSaver."/>
+        <text text="Click the button below to open the login page in your browser."/>
+    </vertical>
+    
+    <button text="Login with BeatSaver" on-click="loginButtonOnClick" pref-width='34' pref-height='10'/>
+</vertical>

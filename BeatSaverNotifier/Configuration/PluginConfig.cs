@@ -20,6 +20,8 @@ namespace BeatSaverNotifier.Configuration
 
         public virtual long firstCheckUnixTimeStamp { get; set; } = -1;
         
+        public virtual bool isSignedIn { get; set; } = false;
+        
         [UseConverter(typeof(ListConverter<string>))]
         public virtual List<string> keysToIgnore { get; set; } = new List<string>();
     }

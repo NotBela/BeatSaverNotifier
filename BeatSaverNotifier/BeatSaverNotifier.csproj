@@ -135,8 +135,9 @@
       <EmbeddedResource Include="UI\BSML\MapListScreen\BeatSaverNotifierView.bsml" />
       <None Remove="UI\BSML\LoadingScreen\LoadingScreenView.bsml" />
       <EmbeddedResource Include="UI\BSML\LoadingScreen\LoadingScreenView.bsml" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="UI\BSML\LoginScreen\" />
+      <None Remove="UI\BSML\LoginScreen\LoginScreenView.bsml" />
+      <EmbeddedResource Include="UI\BSML\LoginScreen\LoginScreenView.bsml" />
+      <None Remove="UI\BSML\LoginScreen\LoginScreenAwaitingUserView.bsml" />
+      <EmbeddedResource Include="UI\BSML\LoginScreen\LoginScreenAwaitingUserView.bsml" />
     </ItemGroup>
 </Project>
