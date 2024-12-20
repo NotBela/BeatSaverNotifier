@@ -158,9 +158,9 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         {
             try
             {
-                flowCoordinator.presentMapListAndQueueViewController();
                 _beatmapsInList = mapList;
                 ReloadTableData();
+                flowCoordinator.State = BeatSaverNotifierFlowCoordinator.FlowState.MapList;
             }
             catch (Exception e)
             {
@@ -176,19 +176,9 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             customListTableData.TableView.ReloadData();
         }
 
-        public async void Initialize()
-        {
-            try
-            {
-                _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
-                
-                await _beatSaverChecker.CheckBeatSaverAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-                showErrorModal();
-            }
+        public void Initialize()
+        { 
+            _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
         }
 
         public void Dispose()

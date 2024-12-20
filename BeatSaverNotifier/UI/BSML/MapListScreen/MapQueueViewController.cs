@@ -57,6 +57,7 @@ namespace BeatSaverNotifier.UI.BSML
 
         private void onDownloadStarted(BeatmapModel beatmap)
         {
+            if (_mapQueueManager.readOnlyQueue.Count == 0) return;
             if (_mapQueueManager.readOnlyQueue.IndexOf(beatmap) == -1) return;
             
             _queueList.Data[_mapQueueManager.readOnlyQueue.IndexOf(beatmap)].Subtext = "Downloading...";

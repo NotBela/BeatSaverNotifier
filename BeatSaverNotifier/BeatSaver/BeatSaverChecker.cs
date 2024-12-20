@@ -12,6 +12,7 @@ using BeatSaverNotifier.Configuration;
 using BeatSaverSharp;
 using BeatSaverSharp.Models;
 using BeatSaverSharp.Models.Pages;
+using IPA.Config.Data;
 using Newtonsoft.Json.Linq;
 using SiraUtil.Logging;
 using SongCore;
@@ -31,8 +32,8 @@ namespace BeatSaverNotifier.BeatSaver
         
         public event Action<List<BeatmapModel>> OnBeatSaverCheckFinished;
         public event Action onBeatSaverCheckStarted;
-        
-        public bool isChecking { get; private set; }
+        public bool IsChecking { get; private set; }
+
         public ReadOnlyCollection<BeatmapModel> cachedMaps { get; private set; } = new ReadOnlyCollection<BeatmapModel>(Array.Empty<BeatmapModel>());
 
         public BeatSaverChecker(SiraLog logger, OAuthApi oAuthApi)
@@ -46,18 +47,18 @@ namespace BeatSaverNotifier.BeatSaver
         public async Task CheckBeatSaverAsync()
         {
             if (!PluginConfig.Instance.isSignedIn) return;
-            if (isChecking) return;
+            if (IsChecking) return;
             
+            IsChecking = true;
             onBeatSaverCheckStarted?.Invoke();
-            isChecking = true;
             
             var maps = await getPagesUntilPastFirstCheckDateTime();
             if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
                 PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
             
-            OnBeatSaverCheckFinished?.Invoke(maps);
+            IsChecking = false;
             cachedMaps = maps.AsReadOnly();
-            isChecking = false;
+            OnBeatSaverCheckFinished?.Invoke(maps);
         }
 
         private async Task<List<BeatmapModel>> getPagesUntilPastFirstCheckDateTime()

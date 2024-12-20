@@ -24,7 +24,7 @@ namespace BeatSaverNotifier.UI.BSML.LoginScreen
         [UIAction("loginButtonOnClick")]
         private void LoginButtonOnClick()
         {
-            _flowCoordinator.presentAwaitingUserLoginScreen();
+            _flowCoordinator.State = BeatSaverNotifierFlowCoordinator.FlowState.LoginAwaitingUser;
             _oauthApi.startNewOAuthFlow();
         }
     }

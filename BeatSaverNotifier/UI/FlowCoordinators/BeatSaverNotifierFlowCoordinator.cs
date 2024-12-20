@@ -43,74 +43,84 @@ namespace BeatSaverNotifier.FlowCoordinators
             this._loginViewController = loginScreenViewController;
             this._loginAwaitingUserViewControllerViewController = loginAwaitingUserViewController;
         }
+        
+        private ViewController currentViewController;
+
+        public enum FlowState
+        {
+            Loading,
+            Login,
+            LoginAwaitingUser,
+            MapList
+        }
+
+        private FlowState _state = FlowState.Loading;
+
+        public FlowState State
+        {
+            get => _state;
+            set
+            {
+                if (!isActivated || isInTransition || value == _state) return;
+                _state = value;
+                
+                switch (value)
+                {
+                    case FlowState.Login:
+                        showBackButton = true;
+                        currentViewController = _loginViewController;
+                        presentOrReplaceViewController(_loginViewController);
+                        break;
+                    case FlowState.LoginAwaitingUser:
+                        showBackButton = true;
+                        currentViewController = _loginAwaitingUserViewControllerViewController;
+                        presentOrReplaceViewController(_loginAwaitingUserViewControllerViewController);
+                        break;
+                    case FlowState.MapList:
+                        showBackButton = true;
+                        presentOrReplaceViewController(_mainViewController);
+                        currentViewController = _mainViewController;
+                        SetRightScreenViewController(_mapQueueViewController, ViewController.AnimationType.In);
+                        break;
+                    case FlowState.Loading:
+                        showBackButton = false;
+                        currentViewController = _loadingScreenViewController;
+                        presentOrReplaceViewController(_loadingScreenViewController);
+                        SetRightScreenViewController(null, ViewController.AnimationType.Out);
+                        break;
+                }
+            }
+        }
+
+        private void presentOrReplaceViewController(ViewController viewController)
+        {
+            DismissViewController(currentViewController);
+            PresentViewController(viewController, immediately: true);
+        }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             try
             {
-                if (!firstActivation) return;
+                if (!addedToHierarchy) return;
                 
                 SetTitle("BeatSaverNotifier");
-                showBackButton = true;
+                showBackButton = _state != FlowState.Loading;
+
+                ProvideInitialViewControllers(_loadingScreenViewController);
 
                 if (!PluginConfig.Instance.isSignedIn)
                 {
-                    ProvideInitialViewControllers(_loginViewController);
+                    State = FlowState.Login;
                     return;
                 }
-                                        
-                if (_beatSaverChecker.isChecking)
-                {
-                    showBackButton = false;
-                    ProvideInitialViewControllers(_loadingScreenViewController);
-                    return;
-                }
-                ProvideInitialViewControllers(_mainViewController, rightScreenViewController: _mapQueueViewController);
+
+                if (!_beatSaverChecker.IsChecking) State = FlowState.MapList;
             }
             catch (Exception ex)
             {
                 _siraLog.Error(ex);
             }
-        }
-
-        public void presentAwaitingUserLoginScreen()
-        {
-            this.showBackButton = true;
-            this.ReplaceTopViewController(_loginAwaitingUserViewControllerViewController);
-            this.SetRightScreenViewController(null, ViewController.AnimationType.Out);
-        }
-
-        public void presentLoginScreen()
-        {
-            showBackButton = true;
-            this.ReplaceTopViewController(_loginViewController);
-            this.SetRightScreenViewController(null, ViewController.AnimationType.Out);
-        }
-
-        public void presentLoadingScreen()
-        {
-            Plugin.Log.Info("got to here1");
-            showBackButton = false;
-            Plugin.Log.Info("got to here2");
-            try
-            {
-                ReplaceTopViewController(_loadingScreenViewController);
-            }
-            catch (Exception ex)
-            {
-                _siraLog.Error(ex);
-            }
-            
-            Plugin.Log.Info("got to here3");
-            this.SetRightScreenViewController(null, ViewController.AnimationType.Out);
-            Plugin.Log.Info("got to here4");
-        }
-
-        public void presentMapListAndQueueViewController()
-        {
-            showBackButton = true;
-            this.ReplaceTopViewController(_mainViewController);
-            this.SetRightScreenViewController(_mapQueueViewController, ViewController.AnimationType.In);
         }
 
         protected override void BackButtonWasPressed(ViewController topViewController)

@@ -6,5 +6,4 @@
         <text id="statusText" text="Status: Awaiting login..."/>
         <loading/>
     </vertical>
-    
 </vertical>

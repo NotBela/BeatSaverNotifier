@@ -37,7 +37,6 @@ namespace BeatSaverNotifier.UI.BSML.LoginScreen
         {
             try
             {
-                await Task.Delay(1000);
                 PluginConfig.Instance.isSignedIn = true;
                 await _beatSaverChecker.CheckBeatSaverAsync();
             }
