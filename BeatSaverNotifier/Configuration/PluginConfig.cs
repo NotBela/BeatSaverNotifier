@@ -16,7 +16,7 @@ namespace BeatSaverNotifier.Configuration
     {
         public static PluginConfig Instance { get; set; }
 
-        public virtual string refreshToken { get; set; } = String.Empty;
+        public virtual string refreshToken { get; set; } = string.Empty;
 
         public virtual long firstCheckUnixTimeStamp { get; set; } = -1;
         

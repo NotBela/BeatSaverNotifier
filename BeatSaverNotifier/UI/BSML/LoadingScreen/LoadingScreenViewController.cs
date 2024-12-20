@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
+using BeatSaverNotifier.Configuration;
 using BeatSaverNotifier.FlowCoordinators;
+using HMUI;
+using SiraUtil.Logging;
 using Zenject;
 
 namespace BeatSaverNotifier.UI.BSML.LoadingScreen
@@ -11,27 +14,52 @@ namespace BeatSaverNotifier.UI.BSML.LoadingScreen
     [ViewDefinition("BeatSaverNotifier.UI.BSML.LoadingScreen.LoadingScreenView.bsml")]
     public class LoadingScreenViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
+        private SiraLog _logger;
+        
         private BeatSaverNotifierFlowCoordinator _beatSaverNotifierFlowCoordinator;
         private BeatSaverChecker _beatSaverChecker;
         
         [Inject]
-        void Inject(BeatSaverNotifierFlowCoordinator beatSaverNotifierFlowCoordinator, BeatSaverChecker beatSaverChecker)
+        void Inject(BeatSaverNotifierFlowCoordinator beatSaverNotifierFlowCoordinator, BeatSaverChecker beatSaverChecker, SiraLog logger)
         {
             this._beatSaverNotifierFlowCoordinator = beatSaverNotifierFlowCoordinator;
             this._beatSaverChecker = beatSaverChecker;
+            _logger = logger;
         }
 
-        private void onBeatSaverCheckStarted() => _beatSaverNotifierFlowCoordinator.State =
-            BeatSaverNotifierFlowCoordinator.FlowState.Loading;
+        private void onBeatSaverCheckStarted() => _beatSaverNotifierFlowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.Loading);
+
+        private async void onViewControllerSwitched(ViewController viewController)
+        {
+            try
+            {
+                await Task.Delay(500); // this is required or the game gets mad
+
+                if (!PluginConfig.Instance.isSignedIn)
+                {
+                    _beatSaverNotifierFlowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.Login);
+                    return;
+                }
+
+                if (!_beatSaverChecker.IsChecking && _beatSaverNotifierFlowCoordinator.currentViewController is LoadingScreenViewController)
+                    _beatSaverNotifierFlowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.MapList);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
+        }
         
         public void Initialize()
         {
             _beatSaverChecker.onBeatSaverCheckStarted += onBeatSaverCheckStarted;
+            _beatSaverNotifierFlowCoordinator.onViewControllerSwitched += onViewControllerSwitched;
         }
 
         public void Dispose()
         {
             _beatSaverChecker.onBeatSaverCheckStarted -= onBeatSaverCheckStarted;
+            _beatSaverNotifierFlowCoordinator.onViewControllerSwitched -= onViewControllerSwitched;
         }
     }
 }

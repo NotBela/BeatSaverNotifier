@@ -34,7 +34,7 @@ namespace BeatSaverNotifier.BeatSaver
         public event Action onBeatSaverCheckStarted;
         public bool IsChecking { get; private set; }
 
-        public ReadOnlyCollection<BeatmapModel> cachedMaps { get; private set; } = new ReadOnlyCollection<BeatmapModel>(Array.Empty<BeatmapModel>());
+        public ReadOnlyCollection<BeatmapModel> cachedMaps { get; private set; } = new(Array.Empty<BeatmapModel>());
 
         public BeatSaverChecker(SiraLog logger, OAuthApi oAuthApi)
         {
@@ -49,16 +49,21 @@ namespace BeatSaverNotifier.BeatSaver
             if (!PluginConfig.Instance.isSignedIn) return;
             if (IsChecking) return;
             
+            _logger.Info("Checking BeatSaver...");
+            
             IsChecking = true;
             onBeatSaverCheckStarted?.Invoke();
             
-            var maps = await getPagesUntilPastFirstCheckDateTime();
             if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
                 PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
+            
+            var maps = await getPagesUntilPastFirstCheckDateTime();
             
             IsChecking = false;
             cachedMaps = maps.AsReadOnly();
             OnBeatSaverCheckFinished?.Invoke(maps);
+            
+            _logger.Info($"BeatSaver check finished, {maps.Count} maps fetched.");
         }
 
         private async Task<List<BeatmapModel>> getPagesUntilPastFirstCheckDateTime()

@@ -123,6 +123,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         {
             coverArtImage.material = Resources.FindObjectsOfTypeAll<Material>()
                 .FirstOrDefault(m => m.name == "UINoGlowRoundEdge");
+            
             _beatmapsInList = _beatSaverChecker.cachedMaps.ToList();
             ReloadTableData();
         }
@@ -155,17 +156,10 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         }
         
         private void OnBeatSaverCheckFinished(List<BeatmapModel> mapList)
-        {
-            try
-            {
-                _beatmapsInList = mapList;
-                ReloadTableData();
-                flowCoordinator.State = BeatSaverNotifierFlowCoordinator.FlowState.MapList;
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-            }
+        { 
+            flowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.MapList); 
+            _beatmapsInList = mapList;
+            ReloadTableData();
         }
         
         public void ReloadTableData()
@@ -176,9 +170,18 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             customListTableData.TableView.ReloadData();
         }
 
-        public void Initialize()
-        { 
-            _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
+        public async void Initialize()
+        {
+            try
+            {
+                _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
+            
+                await _beatSaverChecker.CheckBeatSaverAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
         }
 
         public void Dispose()
