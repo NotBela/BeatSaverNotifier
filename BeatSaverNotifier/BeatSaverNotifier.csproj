@@ -22,6 +22,10 @@
         <DisableZipRelease>True</DisableZipRelease>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="0Harmony">
+            <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="BeatSaber.ViewSystem">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll</HintPath>
             <Private>false</Private>
@@ -38,8 +42,12 @@
             <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="IPA.Loader">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="Newtonsoft.Json">
-            <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Newtonsoft.Json.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="SongCore">
@@ -47,11 +55,6 @@
             <Private>false</Private>
         </Reference>
         <Reference Include="System.Data.DataSetExtensions"/>
-        <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-            <SpecificVersion>False</SpecificVersion>
-            <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
         <Reference Include="Main">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
             <Private>False</Private>
@@ -62,10 +65,6 @@
         </Reference>
         <Reference Include="HMUI">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
-        <Reference Include="IPA.Loader">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="Unity.TextMeshPro">
