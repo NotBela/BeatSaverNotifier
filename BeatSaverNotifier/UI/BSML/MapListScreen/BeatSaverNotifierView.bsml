@@ -5,10 +5,10 @@
             <button text="Refresh" on-click="refreshButtonOnClick"/>
         </vertical>
         <horizontal id="rightPanelContainer" active="false">
-            <vertical pad-left="10" horizontal-fit='PreferredSize'>
+            <vertical pad-left="10">
                 <horizontal horizontal-fit='PreferredSize'>
                     <image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage"/>
-                    <vertical pad-left='2'>
+                    <vertical pad-left='2' pref-width="55">
                         <horizontal spacing="1">
                             <text id="songNameText" align="Left" font-size="5"/>
                             <text id="songSubNameText" align="Left" font-size="5" color="#CCC"/>
