@@ -89,7 +89,7 @@ namespace BeatSaverNotifier.BeatSaver.Models
                 collab.AddRange(collaborators.Select(collaborator => collaborator["name"]?.Value<string>()));
             }
             
-            var downloadUrl = versions[0]["downloadUrl"]?.Value<string>();
+            var downloadUrl = versions[0]["downloadURL"]?.Value<string>();
 
             var uploadDate = DateTime.ParseExact(jsonObject["uploaded"]?.Value<string>(), 
                 "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None);

@@ -55,6 +55,8 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         [UIComponent("songSubNameText")] private readonly TextMeshProUGUI songSubNameText = null;
         [UIComponent("coverArtImage")] private readonly Image coverArtImage = null;
         
+        [UIComponent("descriptionText")] private readonly TextMeshProUGUI descriptionText = null;
+        
         [UIComponent("downloadButton")] private readonly Button downloadButton = null;
         [UIComponent("ignoreButton")] private readonly Button ignoreButton = null;
 
@@ -123,6 +125,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         {
             coverArtImage.material = Resources.FindObjectsOfTypeAll<Material>()
                 .FirstOrDefault(m => m.name == "UINoGlowRoundEdge");
+            descriptionText.enableWordWrapping = true;
             
             _beatmapsInList = _beatSaverChecker.cachedMaps.ToList();
             ReloadTableData();
@@ -140,6 +143,8 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 songSubNameText.text = _selectedBeatmap.SongSubName;
                 mapNameText.text = $"{_selectedBeatmap.SongName}";
                 songAuthorText.text = _selectedBeatmap.Author;
+                
+                descriptionText.text = _selectedBeatmap.Description;
 
                 bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || Loader.GetLevelByHash(_selectedBeatmap.VersionHashes[0]) != null;
                 downloadButton.interactable = !mapIsQueuedOrDownloaded;

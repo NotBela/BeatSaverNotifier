@@ -16,6 +16,9 @@
                         <text id="songAuthorText" align="Left" color="#CCC"/>
                     </vertical>
                 </horizontal>
+                <vertical bg="round-rect-panel" pref-width="55" pref-height="30" pad="2">
+                    <text id="descriptionText"/>
+                </vertical>
                 <horizontal spacing="3">
                     <button id="ignoreButton" on-click="ignoreButtonOnClick" text="Ignore" pref-width='34' pref-height='10'/>
                     <primary-button id='downloadButton' on-click="downloadButtonOnClick" text="Download" pref-width='34' pref-height='10'/>

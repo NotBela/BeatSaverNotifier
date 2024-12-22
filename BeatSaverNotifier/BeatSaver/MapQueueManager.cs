@@ -62,7 +62,7 @@ namespace BeatSaverNotifier.BeatSaver
                     {
                         _currentlyDownloadingBeatmap = beatmap;
                         downloadStarted?.Invoke(beatmap);
-                        var response = await _httpClient.GetAsync(beatmap.DownloadUrl);
+                        var response = await _httpClient.GetAsync(new Uri(beatmap.DownloadUrl, UriKind.Absolute));
                         var content = await response.Content.ReadAsByteArrayAsync();
 
                         var zippedZipArchive = new ZipArchive(new MemoryStream(content), ZipArchiveMode.Update);
