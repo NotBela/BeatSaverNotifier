@@ -20,7 +20,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
 
         private bool listen;
         
-        private readonly byte[] responseBuffer = Encoding.UTF8.GetBytes("<p>Authenticated with BeatSaver successfully! You can now close this tab.</p>");
+        private readonly byte[] responseBuffer = Encoding.UTF8.GetBytes("<p>Authenticated with BeatSaver successfully! Press the 'OK' button ingame to apply your changes. You can now close this tab.</p>");
 
         private void start()
         {
@@ -47,6 +47,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
                         responsePage.ContentLength64 = responseBuffer.Length;
 
                         await responsePage.OutputStream.WriteAsync(responseBuffer, 0, responseBuffer.Length);
+                        listen = false;
                     }
                     catch (ObjectDisposedException)
                     {
@@ -71,11 +72,13 @@ namespace BeatSaverNotifier.BeatSaver.Auth
         
         public void Initialize()
         {
-            this.start();
+            _oAuthApi.listenerShouldStart += start;
         }
 
         public void Dispose()
         {
+            _oAuthApi.listenerShouldStart -= start;
+            
             this.stop();
         }
     }

@@ -54,10 +54,7 @@ namespace BeatSaverNotifier.UI.FlowCoordinators
             }
         }
 
-        protected override void BackButtonWasPressed(ViewController _)
-        {
-            _mainFlowCoordinator.DismissFlowCoordinator(this);
-        }
+        protected override void BackButtonWasPressed(ViewController _) => _mainFlowCoordinator.DismissFlowCoordinator(this);
 
         public void Initialize()
         {
