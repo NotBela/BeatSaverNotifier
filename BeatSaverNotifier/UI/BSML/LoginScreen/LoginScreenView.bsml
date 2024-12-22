@@ -1,9 +1,15 @@
-<vertical spacing="10" child-align="MiddleCenter">
-    <text text="Login with BeatSaver" font-size="10"/>
+<vertical spacing="10">
+    <text text="Login with BeatSaver" font-size="10" align="Center"/>
     <vertical>
-        <text text="This mod requires you to login with BeatSaver."/>
-        <text text="Click the button below to open the login page in your browser."/>
+        <text text="This mod requires you to login with BeatSaver." align="Center"/>
+        <text text="Click the button below to open the login page in your browser." align="Center"/>
     </vertical>
-    
+    <text text="Please check your desktop for a browser window!" active="false" id="checkBrowserText" align="Center"/>
     <button text="Login with BeatSaver" on-click="loginButtonOnClick" pref-width='34' pref-height='10'/>
+    
+    <modal size-delta-x="50" size-delta-y="30" move-to-center='true' click-off-closes="false" show-event="successfulLoginModalShow" hide-event="successfulLoginModalHide">
+        <vertical bg="round-rect-panel">
+            <text text="All set!"/>
+        </vertical>
+    </modal>
 </vertical>

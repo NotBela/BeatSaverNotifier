@@ -44,7 +44,7 @@ namespace BeatSaverNotifier.BeatSaver
 
         private long parseUnixTimestamp(DateTime dateTime) => ((DateTimeOffset) dateTime).ToUnixTimeSeconds();
         
-        public async Task CheckBeatSaverAsync()
+        public async Task CheckBeatSaverAsync(bool silentLoadingScreen = false)
         {
             if (!PluginConfig.Instance.isSignedIn) return;
             if (IsChecking) return;
@@ -52,13 +52,13 @@ namespace BeatSaverNotifier.BeatSaver
             _logger.Info("Checking BeatSaver...");
             
             IsChecking = true;
-            onBeatSaverCheckStarted?.Invoke();
+            if (!silentLoadingScreen) onBeatSaverCheckStarted?.Invoke();
             
             if (PluginConfig.Instance.firstCheckUnixTimeStamp == -1)
-                PluginConfig.Instance.firstCheckUnixTimeStamp = ((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds();
+                PluginConfig.Instance.firstCheckUnixTimeStamp = parseUnixTimestamp(IPA.Utilities.Utils.CurrentTime());
             
             var maps = await getPagesUntilPastFirstCheckDateTime();
-            
+
             IsChecking = false;
             cachedMaps = maps.AsReadOnly();
             OnBeatSaverCheckFinished?.Invoke(maps);

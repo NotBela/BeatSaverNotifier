@@ -1,4 +1,3 @@
 ﻿<vertical>
-    <text text="Loading..."/>
     <loading/>
 </vertical>

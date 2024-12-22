@@ -10,7 +10,7 @@ using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.Configuration;
-using BeatSaverNotifier.FlowCoordinators;
+using BeatSaverNotifier.UI.FlowCoordinators;
 using HMUI;
 using SiraUtil.Logging;
 using SongCore;

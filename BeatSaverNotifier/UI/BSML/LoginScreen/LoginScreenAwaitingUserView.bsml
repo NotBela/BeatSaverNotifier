@@ -1,9 +1,0 @@
-<vertical spacing="10" child-align="MiddleCenter">
-    <text text="Login with BeatSaver" font-size="10"/>
-    
-    <vertical>
-        <text text="Please check your desktop for a browser window!"/>
-        <text id="statusText" text="Status: Awaiting login..."/>
-        <loading/>
-    </vertical>
-</vertical>

@@ -1,7 +1,8 @@
 ﻿using System;
-using BeatSaverNotifier.FlowCoordinators;
 using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaverNotifier.BeatSaver;
+using BeatSaverNotifier.Configuration;
+using BeatSaverNotifier.UI.FlowCoordinators;
 using HMUI;
 using SiraUtil.Logging;
 using Zenject;
@@ -21,7 +22,12 @@ namespace BeatSaverNotifier.UI
             this._logger = logger;
             this._flowCoordinator = flowCoordinator;
             this._parent = parent;
-            this._menuButton = new MenuButton("BeatSaverNotifier", onButtonPressed);
+            this._menuButton = new MenuButton("BeatSaverNotifier", 
+                !PluginConfig.Instance.isSignedIn ? 
+                    "Not signed into BeatSaver! Please sign in at the mod options menu!" : 
+                    "Loading...", 
+                onButtonPressed, 
+                PluginConfig.Instance.isSignedIn);
         }
 
         public void Initialize() => MenuButtons.Instance.RegisterButton(_menuButton);

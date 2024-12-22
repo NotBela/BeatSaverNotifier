@@ -4,7 +4,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.Configuration;
-using BeatSaverNotifier.FlowCoordinators;
+using BeatSaverNotifier.UI.FlowCoordinators;
 using HMUI;
 using SiraUtil.Logging;
 using Zenject;
@@ -34,12 +34,6 @@ namespace BeatSaverNotifier.UI.BSML.LoadingScreen
             try
             {
                 await Task.Delay(500); // this is required or the game gets mad
-
-                if (!PluginConfig.Instance.isSignedIn)
-                {
-                    _beatSaverNotifierFlowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.Login);
-                    return;
-                }
 
                 if (!_beatSaverChecker.IsChecking && _beatSaverNotifierFlowCoordinator.currentViewController is LoadingScreenViewController)
                     _beatSaverNotifierFlowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.MapList);

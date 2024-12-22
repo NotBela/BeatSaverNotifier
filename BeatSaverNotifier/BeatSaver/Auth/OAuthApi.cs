@@ -54,15 +54,14 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             {
                 Method = HttpMethod.Post,
                 RequestUri = new Uri($"https://beatsaver.com/api/oauth2/token", UriKind.Absolute),
-                Content = new FormUrlEncodedContent(new[]
-                {
+                Content = new FormUrlEncodedContent([
                     new KeyValuePair<string, string>("grant_type", "refresh_token"),
                     new KeyValuePair<string, string>("refresh_token", !string.IsNullOrEmpty(PluginConfig.Instance.refreshToken) 
                         ? PluginConfig.Instance.refreshToken 
                         : throw new Exception("No refresh token! (you may need to sign in with BeatSaver again)")),
                     new KeyValuePair<string, string>("client_id", clientId),
-                    new KeyValuePair<string, string>("client_secret", clientSecret),
-                })
+                    new KeyValuePair<string, string>("client_secret", clientSecret)
+                ])
             };
             
             var response = await _httpClient.SendAsync(request);
@@ -108,6 +107,7 @@ namespace BeatSaverNotifier.BeatSaver.Auth
             var parsedJson = JObject.Parse(responseContent);
             
             PluginConfig.Instance.refreshToken = parsedJson["refresh_token"]?.Value<string>();
+            PluginConfig.Instance.isSignedIn = true;
             onAccessTokenAquired?.Invoke();
             return parsedJson["refresh_token"]?.Value<string>();
         }
