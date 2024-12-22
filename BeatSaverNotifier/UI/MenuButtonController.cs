@@ -38,18 +38,38 @@ namespace BeatSaverNotifier.UI
         {
             _beatSaverChecker.OnBeatSaverCheckFinished += BeatSaverCheckerOnBeatSaverCheckFinished;
             _beatSaverChecker.onBeatSaverCheckStarted += BeatSaverCheckerOnBeatSaverCheckStarted;
+            _flowCoordinator.onBackButtonPressed += FlowCoordinatorOnBackButtonPressed;
             
             MenuButtons.Instance.RegisterButton(_menuButton);
         }
 
-        private void BeatSaverCheckerOnBeatSaverCheckStarted() => _menuButton.HoverHint = "Loading...";
+        private void FlowCoordinatorOnBackButtonPressed(List<BeatmapModel> obj) => updateMenuButton(obj);
+
+        private void updateMenuButton(List<BeatmapModel> beatmaps = null)
+        {
+            var beatmapList = new List<BeatmapModel>(beatmaps == null ? _beatSaverChecker.cachedMaps : beatmaps);
+            
+            var buttonText = beatmapList.Count == 0 ? "BeatSaverNotifier" : "<color=#00FF00><b>BeatSaverNotifier";
+            
+            MenuButtons.Instance.UnregisterButton(_menuButton);
+            _menuButton.Text = buttonText;
+            MenuButtons.Instance.RegisterButton(_menuButton);
+        }
+
+        private void BeatSaverCheckerOnBeatSaverCheckStarted()
+        {
+            _menuButton.HoverHint = "Loading...";
+            
+            MenuButtons.Instance.UnregisterButton(_menuButton);
+            _menuButton.Text = "BeatSaverNotifier";
+            MenuButtons.Instance.RegisterButton(_menuButton);
+        }
 
         private void BeatSaverCheckerOnBeatSaverCheckFinished(List<BeatmapModel> obj)
         {
             _menuButton.HoverHint = $"{obj.Count} maps in queue.";
-            MenuButtons.Instance.UnregisterButton(_menuButton);
-            _menuButton.Text = "<color=#00FF00><b>BeatSaverNotifier";
-            MenuButtons.Instance.RegisterButton(_menuButton);
+            
+            updateMenuButton(obj);
         }
 
         public void Dispose()

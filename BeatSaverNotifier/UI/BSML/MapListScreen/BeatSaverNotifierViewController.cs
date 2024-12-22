@@ -30,8 +30,10 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         private MapQueueManager _mapQueueManager;
         private BeatSaverNotifierFlowCoordinator flowCoordinator;
         
-        private List<BeatmapModel> _beatmapsInList = new List<BeatmapModel>();
+        internal List<BeatmapModel> _beatmapsInList = [];
         private BeatmapModel _selectedBeatmap;
+        
+        public bool areMapsInQueue => _beatmapsInList.Any();
         
         [UIParams] private BSMLParserParams parserParams = null;
         
@@ -87,6 +89,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 ignoreButton.interactable = false;
 
                 customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
+                _beatmapsInList.Remove(_selectedBeatmap);
                 customListTableData.TableView.ReloadData();
                 customListTableData.TableView.ClearSelection();
                 

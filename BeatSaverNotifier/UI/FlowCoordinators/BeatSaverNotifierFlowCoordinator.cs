@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.UI.BSML;
 using BeatSaverNotifier.UI.BSML.LoadingScreen;
 using BeatSaverNotifier.UI.BSML.MapListScreen;
@@ -15,6 +17,7 @@ namespace BeatSaverNotifier.UI.FlowCoordinators
         [Inject] private readonly LoadingScreenViewController _loadingScreenViewController = null;
 
         public event Action<ViewController> onViewControllerSwitched;
+        public event Action<List<BeatmapModel>> onBackButtonPressed;
         
         public ViewController currentViewController { get; private set; }
 
@@ -46,15 +49,19 @@ namespace BeatSaverNotifier.UI.FlowCoordinators
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            if (addedToHierarchy)
-            {
-                showBackButton = true; // currentViewController is not LoadingScreenViewController;
-                ProvideInitialViewControllers(currentViewController);
-                onViewControllerSwitched?.Invoke(currentViewController);
-            }
+            if (!addedToHierarchy) return;
+            showBackButton = true; // currentViewController is not LoadingScreenViewController;
+            ProvideInitialViewControllers(currentViewController, 
+                rightScreenViewController: currentViewController == _mainViewController ? _mapQueueViewController : null);
+                
+            onViewControllerSwitched?.Invoke(currentViewController);
         }
 
-        protected override void BackButtonWasPressed(ViewController _) => _mainFlowCoordinator.DismissFlowCoordinator(this);
+        protected override void BackButtonWasPressed(ViewController _)
+        {
+            onBackButtonPressed?.Invoke(_mainViewController._beatmapsInList);
+            _mainFlowCoordinator.DismissFlowCoordinator(this);
+        }
 
         public void Initialize()
         {

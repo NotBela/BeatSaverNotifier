@@ -28,11 +28,7 @@ namespace BeatSaverNotifier.BeatSaver
         private readonly List<BeatmapModel> mapQueue = new List<BeatmapModel>();
         
         private bool _queueIsDownloading = false;
-        
         public ReadOnlyCollection<BeatmapModel> readOnlyQueue => mapQueue.AsReadOnly();
-        
-        private BeatmapModel _currentlyDownloadingBeatmap;
-        public BeatmapModel CurrentlyDownloadingBeatmap => _currentlyDownloadingBeatmap;
 
         public MapQueueManager(SiraLog logger)
         {
@@ -60,7 +56,6 @@ namespace BeatSaverNotifier.BeatSaver
                     var idx = mapQueue.IndexOf(beatmap);
                     try
                     {
-                        _currentlyDownloadingBeatmap = beatmap;
                         downloadStarted?.Invoke(beatmap);
                         var response = await _httpClient.GetAsync(new Uri(beatmap.DownloadUrl, UriKind.Absolute));
                         var content = await response.Content.ReadAsByteArrayAsync();
@@ -73,7 +68,6 @@ namespace BeatSaverNotifier.BeatSaver
                             Path.GetInvalidFileNameChars().Aggregate($"{beatmap.Id} ({beatmap.SongName} - {beatmap.Mappers.Join(", ")})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
                         
                         mapQueue.Remove(beatmap);
-                        _currentlyDownloadingBeatmap = null;
                         downloadFinished?.Invoke(beatmap, idx, false);
                     }
                     catch (Exception exception)
