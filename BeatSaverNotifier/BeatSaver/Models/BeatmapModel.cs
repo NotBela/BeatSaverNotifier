@@ -31,8 +31,10 @@ namespace BeatSaverNotifier.BeatSaver.Models
         public string Id { get; private set; }
         public string DownloadUrl { get; private set; }
         public DateTime UploadDate { get; private set; }
+        
+        public Dictionary<DifficultyModel.CharacteristicTypes, List<DifficultyModel>> DifficultyDictionary { get; private set; }
 
-        private BeatmapModel(byte[] coverBytes, string uploadName, string[] versionHashes, string songName, string songSubName, string author, string id, string[] mappers, string description, string downloadUrl, DateTime uploadDate)
+        private BeatmapModel(byte[] coverBytes, string uploadName, string[] versionHashes, string songName, string songSubName, string author, string id, string[] mappers, string description, string downloadUrl, DateTime uploadDate, Dictionary<DifficultyModel.CharacteristicTypes, List<DifficultyModel>> difficultyDictionary)
         {
             this._coverBytes = coverBytes;
             this.CoverSprite = getSpriteFromImageBuffer(coverBytes);
@@ -46,6 +48,7 @@ namespace BeatSaverNotifier.BeatSaver.Models
             this.Description = description;
             this.DownloadUrl = downloadUrl;
             this.UploadDate = uploadDate;
+            this.DifficultyDictionary = difficultyDictionary;
         }
 
         public CustomListTableData.CustomCellInfo getCustomListCellInfo(bool queuedText = false) => 
@@ -94,6 +97,18 @@ namespace BeatSaverNotifier.BeatSaver.Models
             var uploadDate = DateTime.ParseExact(jsonObject["uploaded"]?.Value<string>(), 
                 "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None);
 
+            var diffsArray = JArray.Parse(versions[0]["diffs"]?.ToString() ?? throw new Exception("This map has no difficulties!"));
+            
+            var dictionary = new Dictionary<DifficultyModel.CharacteristicTypes, List<DifficultyModel>>();
+            
+            foreach (var diff in diffsArray)
+            {
+                var diffModel = DifficultyModel.Parse(diff.ToString());
+                
+                if (dictionary.ContainsKey(diffModel.Characteristic)) dictionary[diffModel.Characteristic].Add(diffModel);
+                else dictionary.Add(diffModel.Characteristic, [diffModel]);
+            }
+
             return new BeatmapModel(
                 cover, 
                 uploadName, 
@@ -105,7 +120,8 @@ namespace BeatSaverNotifier.BeatSaver.Models
                 collab.ToArray(),
                 description,
                 downloadUrl,
-                uploadDate);
+                uploadDate, 
+                dictionary);
         }
     }
 }
