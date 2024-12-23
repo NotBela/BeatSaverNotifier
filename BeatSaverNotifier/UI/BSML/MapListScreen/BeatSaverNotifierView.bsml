@@ -16,9 +16,27 @@
                         <text id="songAuthorText" align="Left" color="#CCC"/>
                     </vertical>
                 </horizontal>
-                <vertical bg="round-rect-panel" pref-width="55" pref-height="30" pad="2">
-                    <text id="descriptionText"/>
+                
+                <vertical pref-height="15" pref-width="50">
+                    <tab-selector tab-tag="characteristicTabs" id="characteristicTabSelector" select-cell="characteristicTabOnSelect"/>
+                    <tab-selector tab-tag="difficultyTabs" id="characteristicTabSelector" select-cell="difficultyTabOnSelect"/>
                 </vertical>
+
+                <tab tags="difficultyTabs" tab-name="Expert+" id="ExPlusDifficultyTab"/>
+                <tab tags="difficultyTabs" tab-name="Expert" id="ExDifficultyTab"/>
+                <tab tags="difficultyTabs" tab-name="Hard" id="HardDifficultyTab"/>
+                <tab tags="difficultyTabs" tab-name="Normal" id="NormalDifficultyTab"/>
+                <tab tags="difficultyTabs" tab-name="Easy" id="EasyDifficultyTab"/>
+
+                <tab tags="characteristicTabs" tab-name="Standard" id="StandardCharacteristicTab"/>
+                <tab tags="characteristicTabs" tab-name="OneSaber" id="OneSaberCharacteristicTab"/>
+                <tab tags="characteristicTabs" tab-name="NoArrows" id="NoArrowsCharacteristicTab"/>
+                <tab tags="characteristicTabs" tab-name="360Degree" id="ThreeSixtyDegreeCharacteristicTab"/>
+                <tab tags="characteristicTabs" tab-name="90Degree" id="NinetyDegreeCharacteristicTab"/>
+                <tab tags="characteristicTabs" tab-name="Lawless" id="LawlessCharacteristicTab"/>
+                <tab tags="characteristicTabs" tab-name="Legacy" id="LegacyCharacteristicTab"/>
+                <tab tags="characteristicTabs" tab-name="Lightshow" id="LightshowCharacteristicTab"/>
+
                 <horizontal spacing="3">
                     <button id="ignoreButton" on-click="ignoreButtonOnClick" text="Ignore" pref-width='34' pref-height='10'/>
                     <primary-button id='downloadButton' on-click="downloadButtonOnClick" text="Download" pref-width='34' pref-height='10'/>

@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Parser;
+using BeatSaberMarkupLanguage.Tags;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Auth;
@@ -29,9 +30,10 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         private OAuthApi _oAuthApi;
         private MapQueueManager _mapQueueManager;
         private BeatSaverNotifierFlowCoordinator flowCoordinator;
-        
-        internal List<BeatmapModel> _beatmapsInList = new();
+
+        private List<BeatmapModel> _beatmapsInList = new();
         private BeatmapModel _selectedBeatmap;
+        private DifficultyModel.CharacteristicTypes _selectedCharacteristic;
         
         public bool areMapsInQueue => _beatmapsInList.Any();
         
@@ -57,11 +59,28 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         [UIComponent("songSubNameText")] private readonly TextMeshProUGUI songSubNameText = null;
         [UIComponent("coverArtImage")] private readonly Image coverArtImage = null;
         
-        [UIComponent("descriptionText")] private readonly TextMeshProUGUI descriptionText = null;
-        
         [UIComponent("downloadButton")] private readonly Button downloadButton = null;
         [UIComponent("ignoreButton")] private readonly Button ignoreButton = null;
-
+        
+        [UIComponent("characteristicTabSelector")] private readonly TabSelector _characteristicTabSelector = null;
+        [UIComponent("difficultyTabSelector")] private readonly TabSelector _difficultyTabSelector = null;
+        // dont think theres a better way to do this
+        [UIComponent("StandardCharacteristicTab")] private readonly Tab _standardCharacteristicTab = null;
+        [UIComponent("OneSaberCharacteristicTab")] private readonly Tab _oneSaberCharacteristicTab = null;
+        [UIComponent("NoArrowsCharacteristicTab")] private readonly Tab _noArrowsCharacteristicTab = null;
+        [UIComponent("ThreeSixtyDegreeCharacteristicTab")] private readonly Tab _threeSixtyDegreeCharacteristicTab = null;
+        [UIComponent("NinetyDegreeCharacteristicTab")] private readonly Tab _ninetyDegreeCharacteristicTab = null;
+        [UIComponent("LawlessCharacteristicTab")] private readonly Tab _lawlessCharacteristicTab = null;
+        [UIComponent("LegacyCharacteristicTab")] private readonly Tab _legacyCharacteristicTab = null;
+        [UIComponent("LightshowCharacteristicTab")] private readonly Tab _lightshowCharacteristicTab = null;
+        
+        [UIComponent("ExPlusDifficultyTab")] private readonly Tab _exPlusDifficultyTab = null;
+        [UIComponent("ExDifficultyTab")] private readonly Tab _exDifficultyTab = null;
+        [UIComponent("HardDifficultyTab")] private readonly Tab _hardDifficultyTab = null;
+        [UIComponent("NormalDifficultyTab")] private readonly Tab _normalDifficultyTab = null;
+        [UIComponent("EasyDifficultyTab")] private readonly Tab _easyDifficultyTab = null;
+        
+        
         [UIAction("ignoreButtonOnClick")]
         private void IgnoreButtonOnClick()
         {
@@ -127,10 +146,19 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         {
             coverArtImage.material = Resources.FindObjectsOfTypeAll<Material>()
                 .FirstOrDefault(m => m.name == "UINoGlowRoundEdge");
-            descriptionText.enableWordWrapping = true;
             
             _beatmapsInList = _beatSaverChecker.CachedMaps.ToList();
             ReloadTableData();
+        }
+
+        [UIAction("characteristicTabOnSelect")]
+        private void updateCharacteristic(TextSegmentedControlTag _, int idx)
+        {
+            _easyDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Easy);
+            _normalDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Normal);
+            _hardDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Hard);
+            _exDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Expert);
+            _exPlusDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.ExpertPlus);
         }
 
         [UIAction("onCellSelect")]
@@ -139,15 +167,27 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             try
             {
                 _selectedBeatmap = _beatmapsInList[index];
-
+                _selectedCharacteristic = DifficultyModel.CharacteristicTypes.Standard;
+                
                 _rightPanelContainer.gameObject.SetActive(true);
                 
                 songSubNameText.text = _selectedBeatmap.SongSubName;
                 mapNameText.text = $"{_selectedBeatmap.SongName}";
                 songAuthorText.text = _selectedBeatmap.Author;
                 
-                descriptionText.text = _selectedBeatmap.Description;
-
+                // THIS SUUUUUUUCKS
+                // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                _standardCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Standard);
+                _oneSaberCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.OneSaber);
+                _noArrowsCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.NoArrows);
+                _threeSixtyDegreeCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.ThreeSixtyDegree);
+                _ninetyDegreeCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.NintetyDegree);
+                _legacyCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Legacy);
+                _lawlessCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Lawless);
+                _lightshowCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Lightshow);
+                
+                updateCharacteristic(null, 0); // select the first tab i think
+                
                 bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || Loader.GetLevelByHash(_selectedBeatmap.VersionHashes[0]) != null;
                 downloadButton.interactable = !mapIsQueuedOrDownloaded;
                 ignoreButton.interactable = !mapIsQueuedOrDownloaded;
