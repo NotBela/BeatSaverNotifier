@@ -23,7 +23,7 @@ namespace BeatSaverNotifier.UI.BSML
         private MapQueueManager _mapQueueManager;
         private SiraLog _logger;
         
-        [UIComponent("queueList")] private CustomListTableData _queueList = null;
+        [UIComponent("queueList")] private readonly CustomListTableData _queueList = null;
         
         [UIAction("onCellSelect")] private void onCellSelect(TableView tableView, int row){} // do nothing
 

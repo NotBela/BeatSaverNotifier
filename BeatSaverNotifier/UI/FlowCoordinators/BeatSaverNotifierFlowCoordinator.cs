@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.UI.BSML;
 using BeatSaverNotifier.UI.BSML.LoadingScreen;
@@ -17,7 +18,7 @@ namespace BeatSaverNotifier.UI.FlowCoordinators
         [Inject] private readonly LoadingScreenViewController _loadingScreenViewController = null;
 
         public event Action<ViewController> onViewControllerSwitched;
-        public event Action<List<BeatmapModel>> onBackButtonPressed;
+        public event Action onBackButtonPressed;
         
         public ViewController currentViewController { get; private set; }
 
@@ -59,8 +60,8 @@ namespace BeatSaverNotifier.UI.FlowCoordinators
 
         protected override void BackButtonWasPressed(ViewController _)
         {
-            onBackButtonPressed?.Invoke(_mainViewController._beatmapsInList);
             _mainFlowCoordinator.DismissFlowCoordinator(this);
+            onBackButtonPressed?.Invoke();
         }
 
         public void Initialize()

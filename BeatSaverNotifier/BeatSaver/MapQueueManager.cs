@@ -17,7 +17,7 @@ namespace BeatSaverNotifier.BeatSaver
 {
     public class MapQueueManager
     {
-        private readonly SiraLog _logger;
+        [Inject] private readonly SiraLog _logger = null;
         
         private readonly HttpClient _httpClient = new HttpClient();
 
@@ -25,15 +25,10 @@ namespace BeatSaverNotifier.BeatSaver
         public event Action<BeatmapModel> downloadStarted;
         public event Action<BeatmapModel, int, bool> downloadFinished;
         
-        private readonly List<BeatmapModel> mapQueue = new List<BeatmapModel>();
+        private readonly List<BeatmapModel> mapQueue = new();
         
         private bool _queueIsDownloading = false;
         public ReadOnlyCollection<BeatmapModel> readOnlyQueue => mapQueue.AsReadOnly();
-
-        public MapQueueManager(SiraLog logger)
-        {
-            _logger = logger;
-        }
 
         public async Task addMapToQueue(BeatmapModel beatmap)
         {

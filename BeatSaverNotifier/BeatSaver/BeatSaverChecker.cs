@@ -23,24 +23,19 @@ namespace BeatSaverNotifier.BeatSaver
 {
     public class BeatSaverChecker
     {
-        private readonly BeatSaverSharp.BeatSaver _beatSaver = new BeatSaverSharp.BeatSaver(
-            new BeatSaverOptions("BeatSaverNotifier", 
-                Plugin.Instance.metaData.HVersion.ToString()));
-        private readonly OAuthApi _oAuthApi;
-        private readonly HttpClient _httpClient = new HttpClient();
-        private readonly SiraLog _logger;
+        [Inject] private readonly OAuthApi _oAuthApi = null;
+        [Inject] private readonly SiraLog _logger = null;
+        
+        private readonly HttpClient _httpClient = new();
         
         public event Action<List<BeatmapModel>> OnBeatSaverCheckFinished;
         public event Action onBeatSaverCheckStarted;
         public bool IsChecking { get; private set; }
 
-        public ReadOnlyCollection<BeatmapModel> cachedMaps { get; private set; } = new(Array.Empty<BeatmapModel>());
+        private List<BeatmapModel> _cachedMaps = new();
+        public ReadOnlyCollection<BeatmapModel> CachedMaps => _cachedMaps.AsReadOnly();
 
-        public BeatSaverChecker(SiraLog logger, OAuthApi oAuthApi)
-        {
-            _logger = logger;
-            _oAuthApi = oAuthApi;
-        }
+        public void removeFromCachedMaps(BeatmapModel beatmap) => _cachedMaps.Remove(beatmap);
 
         private long parseUnixTimestamp(DateTime dateTime) => ((DateTimeOffset) dateTime).ToUnixTimeSeconds();
         
@@ -60,7 +55,7 @@ namespace BeatSaverNotifier.BeatSaver
             var maps = await getPagesUntilPastFirstCheckDateTime();
 
             IsChecking = false;
-            cachedMaps = maps.AsReadOnly();
+            _cachedMaps = maps;
             OnBeatSaverCheckFinished?.Invoke(maps);
             
             _logger.Info($"BeatSaver check finished, {maps.Count} maps fetched.");

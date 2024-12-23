@@ -30,12 +30,12 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         private MapQueueManager _mapQueueManager;
         private BeatSaverNotifierFlowCoordinator flowCoordinator;
         
-        internal List<BeatmapModel> _beatmapsInList = [];
+        internal List<BeatmapModel> _beatmapsInList = new();
         private BeatmapModel _selectedBeatmap;
         
         public bool areMapsInQueue => _beatmapsInList.Any();
         
-        [UIParams] private BSMLParserParams parserParams = null;
+        [UIParams] private readonly BSMLParserParams parserParams = null;
         
         [UIComponent("mapList")]
         private readonly CustomListTableData customListTableData = null;
@@ -68,14 +68,12 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             if (!PluginConfig.Instance.keysToIgnore.Contains(_selectedBeatmap.Id)) 
                 PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.Id);
             
-            var idx = _beatmapsInList.IndexOf(_selectedBeatmap);
-            
             _rightPanelContainer.gameObject.SetActive(false);
-
-            if (idx == -1) return;
+            
+            _beatmapsInList.Remove(_selectedBeatmap);
+            _beatSaverChecker.removeFromCachedMaps(_selectedBeatmap);
+            customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
             _selectedBeatmap = null;
-            _beatmapsInList.RemoveAt(idx);
-            customListTableData.Data.RemoveAt(idx);
             customListTableData.TableView.ReloadData();
         }
         
@@ -89,6 +87,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 ignoreButton.interactable = false;
 
                 customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
+                _beatSaverChecker.removeFromCachedMaps(_selectedBeatmap);
                 _beatmapsInList.Remove(_selectedBeatmap);
                 customListTableData.TableView.ReloadData();
                 customListTableData.TableView.ClearSelection();
@@ -130,7 +129,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 .FirstOrDefault(m => m.name == "UINoGlowRoundEdge");
             descriptionText.enableWordWrapping = true;
             
-            _beatmapsInList = _beatSaverChecker.cachedMaps.ToList();
+            _beatmapsInList = _beatSaverChecker.CachedMaps.ToList();
             ReloadTableData();
         }
 
