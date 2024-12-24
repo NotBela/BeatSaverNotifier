@@ -58,7 +58,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
         
-        [UIComponent("mapListHorizontal")] private readonly HorizontalLayoutGroup _mapListHorizontal = null;
+        [UIComponent("mapListVertical")] private readonly VerticalLayoutGroup _mapListVertical = null;
         [UIComponent("noMapsVertical")] private readonly VerticalLayoutGroup _noMapsVertical = null;
         
         [UIComponent("downloadAllModalText")] private readonly TextMeshProUGUI _downloadAllModalText = null;
@@ -94,6 +94,8 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         [UIComponent("HardDifficultyTab")] private readonly Tab _hardDifficultyTab = null;
         [UIComponent("NormalDifficultyTab")] private readonly Tab _normalDifficultyTab = null;
         [UIComponent("EasyDifficultyTab")] private readonly Tab _easyDifficultyTab = null;
+        
+        [UIComponent("downloadAllButton")] private readonly Button _downloadAllButton = null;
         
         
         [UIAction("ignoreButtonOnClick")]
@@ -186,6 +188,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             _selectedBeatmap = null; 
             customListTableData.Data.Clear(); 
             customListTableData.TableView.ReloadData();
+            _downloadAllButton.interactable = false;
             _beatmapsInList.Do(async void (i) =>
             {
                 try
@@ -324,7 +327,8 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         private void showOrHideNoMapsVertical()
         {
             _noMapsVertical.gameObject.SetActive(!areMapsInQueue);
-            _mapListHorizontal.gameObject.SetActive(areMapsInQueue);
+            _mapListVertical.gameObject.SetActive(areMapsInQueue);
+            _downloadAllButton.interactable = areMapsInQueue;
         }
         
         private void OnBeatSaverCheckFinished(List<BeatmapModel> mapList)

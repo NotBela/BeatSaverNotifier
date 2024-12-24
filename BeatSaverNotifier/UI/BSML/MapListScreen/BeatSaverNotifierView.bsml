@@ -1,14 +1,15 @@
 <vertical>
-    <vertical active="false" id="noMapsVertical" pref-height="50">
-        <text text="No maps in queue =(" color="#CCC" align="Center"/>
-    </vertical>
-    
-    <horizontal id="mapListHorizontal">
-        <vertical id="mapListContainer">
-            <list id="mapList" select-cell="onCellSelect" show-scrollbar="true" visible-cells="7" bind-value="true"/>
+    <horizontal>
+        <vertical>
+            <vertical active="false" id="noMapsVertical" pref-height="50">
+                <text text="No maps in queue =(" color="#CCC" align="Center"/>
+            </vertical>
+            <vertical id="mapListVertical">
+                <list id="mapList" select-cell="onCellSelect" show-scrollbar="true" visible-cells="7" bind-value="true"/>
+            </vertical>
             <horizontal spacing="3">
                 <button text="Refresh" on-click="refreshButtonOnClick"/>
-                <button text="Download All" on-click="downloadAllButtonOnClick"/>
+                <button text="Download All" on-click="downloadAllButtonOnClick" id="downloadAllButton"/>
             </horizontal>
         </vertical>
         <horizontal id="rightPanelContainer" active="false">
