@@ -58,6 +58,9 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
         
+        [UIComponent("mapListHorizontal")] private readonly HorizontalLayoutGroup _mapListHorizontal = null;
+        [UIComponent("noMapsVertical")] private readonly VerticalLayoutGroup _noMapsVertical = null;
+        
         [UIComponent("downloadAllModalText")] private readonly TextMeshProUGUI _downloadAllModalText = null;
         
         [UIComponent("songNameText")] private readonly TextMeshProUGUI mapNameText = null;
@@ -106,6 +109,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
             _selectedBeatmap = null;
             customListTableData.TableView.ReloadData();
+            showOrHideNoMapsVertical();
         }
         
         [UIAction("downloadButtonOnClick")]
@@ -171,6 +175,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             
             _beatmapsInList = _beatSaverChecker.CachedMaps.ToList();
             ReloadTableData();
+            showOrHideNoMapsVertical();
         }
 
         [UIAction("downloadAllModalConfirmOnClick")]
@@ -192,6 +197,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                     _logger.Error(e);
                 }
             });
+            _beatmapsInList = _beatSaverChecker.CachedMaps.ToList();
         }
 
         [UIAction("difficultyTabOnSelect")]
@@ -303,12 +309,19 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 showErrorModal();
             }
         }
+
+        private void showOrHideNoMapsVertical()
+        {
+            _noMapsVertical.gameObject.SetActive(!areMapsInQueue);
+            _mapListHorizontal.gameObject.SetActive(areMapsInQueue);
+        }
         
         private void OnBeatSaverCheckFinished(List<BeatmapModel> mapList)
         { 
             flowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.MapList); 
             _beatmapsInList = mapList;
             ReloadTableData();
+            showOrHideNoMapsVertical();
         }
         
         public void ReloadTableData()

@@ -1,5 +1,9 @@
 <vertical>
-    <horizontal>
+    <vertical active="false" id="noMapsVertical" pref-height="50">
+        <text text="No maps in queue =(" color="#CCC" align="Center"/>
+    </vertical>
+    
+    <horizontal id="mapListHorizontal">
         <vertical id="mapListContainer">
             <list id="mapList" select-cell="onCellSelect" show-scrollbar="true" visible-cells="7" bind-value="true"/>
             <horizontal spacing="3">
