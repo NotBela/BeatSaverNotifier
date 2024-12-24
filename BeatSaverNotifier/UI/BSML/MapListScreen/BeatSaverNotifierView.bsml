@@ -8,11 +8,9 @@
             <vertical pad-left="10">
                 <horizontal horizontal-fit='PreferredSize'>
                     <clickable-image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage" on-click="coverArtOnClick" hover-hint="Click to go to the BeatSaver page!"/>
-                    <vertical pad-left='2' pref-width="55">
-                        <horizontal spacing="1">
-                            <text id="songNameText" align="Left" font-size="5"/>
-                            <text id="songSubNameText" align="Left" font-size="5" color="#CCC"/>
-                        </horizontal>
+                    <vertical pad-left='2' pref-width="70">
+                        <text id="songNameText" align="Left" font-size="5"/>
+                        <text id="songSubNameText" align="Left" font-size="3" color="#CCC"/>
                         <text id="songAuthorText" align="Left" color="#CCC"/>
                     </vertical>
                 </horizontal>
