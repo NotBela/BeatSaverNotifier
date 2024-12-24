@@ -23,22 +23,15 @@ namespace BeatSaverNotifier.UI.BSML
         private SiraLog _logger;
         
         [UIComponent("queueList")] private readonly CustomListTableData _queueList = null;
-        
-        [UIAction("onCellSelect")] private void onCellSelect(TableView tableView, int row){} // do nothing
+
+        [UIAction("onCellSelect")]
+        private void onCellSelect(TableView tableView, int row) => tableView.ClearSelection();
 
         [UIAction("#post-parse")]
         void postParse()
         {
-            try
-            {
-                _queueList.Data = _mapQueueManager.readOnlyQueue.Select(i => i.getCustomListCellInfo(true)).ToList();
-                _queueList.TableView.ReloadData();
-                // make list not interactable here
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-            }
+            _queueList.Data = _mapQueueManager.readOnlyQueue.Select(i => i.getCustomListCellInfo(true)).ToList();
+            _queueList.TableView.ReloadData();
         }
         
         [Inject]
