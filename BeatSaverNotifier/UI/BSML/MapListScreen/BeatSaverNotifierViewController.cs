@@ -34,6 +34,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         private BeatSaverNotifierFlowCoordinator flowCoordinator;
 
         private List<BeatmapModel> _beatmapsInList = new();
+        
         private BeatmapModel _selectedBeatmap;
         private DifficultyModel.CharacteristicTypes _selectedCharacteristic;
         
@@ -63,6 +64,14 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         
         [UIComponent("downloadButton")] private readonly Button downloadButton = null;
         [UIComponent("ignoreButton")] private readonly Button ignoreButton = null;
+        
+        [UIComponent("npsText")] private readonly TextMeshProUGUI _npsText = null;
+        [UIComponent("noteCountText")] private readonly TextMeshProUGUI _noteCountText = null;
+        [UIComponent("wallCountText")] private readonly TextMeshProUGUI _wallCountText = null;
+        [UIComponent("bombCountText")] private readonly TextMeshProUGUI _bombCountText = null;
+        
+        [UIComponent("characteristicTabSelector")] private readonly TabSelector _characteristicTabSelector = null;
+        [UIComponent("difficultyTabSelector")] private readonly TabSelector _difficultyTabSelector = null;
         
         // dont think theres a better way to do this
         [UIComponent("StandardCharacteristicTab")] private readonly Tab _standardCharacteristicTab = null;
@@ -151,8 +160,29 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             ReloadTableData();
         }
 
+        [UIAction("difficultyTabOnSelect")]
+        private void difficultyTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
+        {
+            var selectedDiffType = textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text switch
+            {
+                "Easy" => DifficultyModel.DifficultyTypes.Easy,
+                "Normal" => DifficultyModel.DifficultyTypes.Normal,
+                "Hard" => DifficultyModel.DifficultyTypes.Hard,
+                "Expert" => DifficultyModel.DifficultyTypes.Expert,
+                "Expert+" => DifficultyModel.DifficultyTypes.ExpertPlus,
+                _ => DifficultyModel.DifficultyTypes.Unknown
+            };
+
+            var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].First(i => i.Difficulty == selectedDiffType);
+
+            _npsText.text = selectedDiffData.NotesPerSecond.ToString(CultureInfo.InvariantCulture);
+            _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
+            _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
+            _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
+        }
+
         [UIAction("characteristicTabOnSelect")]
-        private void updateCharacteristicTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
+        private void characteristicTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
         {
             _selectedCharacteristic = textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text switch
             {
@@ -172,6 +202,15 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             _hardDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Hard);
             _exDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Expert);
             _exPlusDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.ExpertPlus);
+
+            var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
+            
+            _npsText.text = selectedDiffData.NotesPerSecond.ToString(CultureInfo.InvariantCulture);
+            _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
+            _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
+            _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
+            
+            _difficultyTabSelector.TextSegmentedControl.cells.Last().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
         }
 
         [UIAction("coverArtOnClick")]
@@ -207,6 +246,15 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 _hardDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Hard);
                 _exDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Expert);
                 _exPlusDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.ExpertPlus);
+
+                var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
+                _difficultyTabSelector.TextSegmentedControl.cells.Last().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
+                _characteristicTabSelector.TextSegmentedControl.cells.First().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
+
+                _npsText.text = selectedDiffData.NotesPerSecond.ToString(CultureInfo.InvariantCulture);
+                _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
+                _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
+                _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
                 
                 bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || Loader.GetLevelByHash(_selectedBeatmap.VersionHashes[0]) != null;
                 downloadButton.interactable = !mapIsQueuedOrDownloaded;

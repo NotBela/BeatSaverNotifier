@@ -17,10 +17,29 @@
                     </vertical>
                 </horizontal>
                 
-                <vertical pad-bottom="5" pad-top="5">
+                <horizontal spacing="5" pad-top="5" pad-bottom="5">
+                    <horizontal spacing="1">
+                        <image image="#NPSIcon" preserve-aspect="true" pref-width="2" pref-height="2"/>
+                        <text id="npsText" color="#CCC" font-size="4"/>
+                    </horizontal>
+                    <horizontal spacing="1">
+                        <image image="#GameNoteIcon" preserve-aspect="true" pref-width="2" pref-height="2"/>
+                        <text id="noteCountText" color="#CCC" font-size="4"/>
+                    </horizontal>
+                    <horizontal spacing="1">
+                        <image image="#ObstacleIcon" preserve-aspect="true" pref-width="2" pref-height="2"/>
+                        <text id="wallCountText" color="#CCC" font-size="4"/>
+                    </horizontal>
+                    <horizontal spacing="1">
+                        <image image="#BombIcon" preserve-aspect="true" pref-width="2" pref-height="2"/>
+                        <text id="bombCountText" color="#CCC" font-size="4"/>
+                    </horizontal>
+                </horizontal>
+                
+                <vertical pad-bottom="5">
                     <vertical pref-height="15">
                         <tab-selector tab-tag="characteristicTabs" id="characteristicTabSelector" select-cell="characteristicTabOnSelect"/>
-                        <tab-selector tab-tag="difficultyTabs" id="characteristicTabSelector"/>
+                        <tab-selector tab-tag="difficultyTabs" id="difficultyTabSelector" select-cell="difficultyTabOnSelect"/>
                     </vertical>
                 </vertical>
 
