@@ -2,7 +2,10 @@
     <horizontal>
         <vertical id="mapListContainer">
             <list id="mapList" select-cell="onCellSelect" show-scrollbar="true" visible-cells="7" bind-value="true"/>
-            <button text="Refresh" on-click="refreshButtonOnClick"/>
+            <horizontal spacing="3">
+                <button text="Refresh" on-click="refreshButtonOnClick"/>
+                <button text="Download All" on-click="downloadAllButtonOnClick"/>
+            </horizontal>
         </vertical>
         <horizontal id="rightPanelContainer" active="false">
             <vertical pad-left="10">
@@ -63,6 +66,16 @@
             </vertical>
         </horizontal>
     </horizontal>
+
+    <modal size-delta-x="50" size-delta-y="30" move-to-center="true" show-event="downloadAllModalShow" hide-event="downloadAllModalHide" click-off-closes="true">
+        <vertical bg="round-rect-panel">
+            <text text="placeholder" align="Center" id="downloadAllModalText"/>
+            <horizontal spacing="5">
+                <primary-button text="Yes" on-click="downloadAllModalConfirmOnClick"/>
+                <button text="No" on-click="downloadAllModalDenyOnClick"/>
+            </horizontal>
+        </vertical>
+    </modal>
     
     <modal size-delta-x="50" size-delta-y="30" move-to-center="true" show-event="errorModalShow" hide-event="errorModalHide" click-off-closes="true">
         <vertical bg="round-rect-panel">

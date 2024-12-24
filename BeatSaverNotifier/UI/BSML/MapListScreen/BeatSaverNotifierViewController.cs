@@ -14,6 +14,7 @@ using BeatSaverNotifier.BeatSaver.Auth;
 using BeatSaverNotifier.BeatSaver.Models;
 using BeatSaverNotifier.Configuration;
 using BeatSaverNotifier.UI.FlowCoordinators;
+using HarmonyLib;
 using HMUI;
 using SiraUtil.Logging;
 using SongCore;
@@ -56,6 +57,8 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         }
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
+        
+        [UIComponent("downloadAllModalText")] private readonly TextMeshProUGUI _downloadAllModalText = null;
         
         [UIComponent("songNameText")] private readonly TextMeshProUGUI mapNameText = null;
         [UIComponent("songAuthorText")] private readonly TextMeshProUGUI songAuthorText = null;
@@ -149,6 +152,16 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 showErrorModal();
             }
         }
+
+        [UIAction("downloadAllButtonOnClick")]
+        private void downloadAllButtonOnClick()
+        {
+            _downloadAllModalText.text = $"Are you sure you want to download {_beatmapsInList.Count} maps?";
+            parserParams.EmitEvent("downloadAllModalShow");
+        }
+        
+        [UIAction("downloadAllModalDenyOnClick")]
+        private void downloadAllModalDenyOnClick() => parserParams.EmitEvent("downloadAllModalHide");
         
         [UIAction("#post-parse")]
         void postParse()
@@ -158,6 +171,27 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             
             _beatmapsInList = _beatSaverChecker.CachedMaps.ToList();
             ReloadTableData();
+        }
+
+        [UIAction("downloadAllModalConfirmOnClick")]
+        private void downloadAllModalConfirmOnClick()
+        {
+            parserParams.EmitEvent("downloadAllModalHide");
+            _rightPanelContainer.gameObject.SetActive(false);
+            _selectedBeatmap = null; 
+            customListTableData.Data.Clear(); 
+            customListTableData.TableView.ReloadData();
+            _beatmapsInList.Do(async void (i) =>
+            {
+                try
+                {
+                    await _mapQueueManager.addMapToQueue(i);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e);
+                }
+            });
         }
 
         [UIAction("difficultyTabOnSelect")]
