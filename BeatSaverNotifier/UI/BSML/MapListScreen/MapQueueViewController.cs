@@ -10,7 +10,6 @@ using BeatSaberMarkupLanguage.TypeHandlers;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSaverNotifier.BeatSaver;
 using BeatSaverNotifier.BeatSaver.Models;
-using BeatSaverSharp.Models;
 using HMUI;
 using SiraUtil.Logging;
 using Zenject;

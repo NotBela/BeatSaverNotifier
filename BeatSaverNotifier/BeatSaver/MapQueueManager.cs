@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BeatSaverNotifier.BeatSaver.Models;
-using BeatSaverSharp.Models;
 using IPA.Utilities;
 using ModestTree;
 using SiraUtil.Logging;

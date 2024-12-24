@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using BeatSaverSharp.Models;
 using IPA.Config.Data;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;

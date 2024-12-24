@@ -7,7 +7,7 @@
         <horizontal id="rightPanelContainer" active="false">
             <vertical pad-left="10">
                 <horizontal horizontal-fit='PreferredSize'>
-                    <image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage"/>
+                    <clickable-image preserve-aspect="true" pref-width="15" pref-height="15" id="coverArtImage" on-click="coverArtOnClick" hover-hint="Click to go to the BeatSaver page!"/>
                     <vertical pad-left='2' pref-width="55">
                         <horizontal spacing="1">
                             <text id="songNameText" align="Left" font-size="5"/>
@@ -17,17 +17,19 @@
                     </vertical>
                 </horizontal>
                 
-                <vertical pref-height="15" pref-width="50">
-                    <tab-selector tab-tag="characteristicTabs" id="characteristicTabSelector" select-cell="characteristicTabOnSelect"/>
-                    <tab-selector tab-tag="difficultyTabs" id="characteristicTabSelector" select-cell="difficultyTabOnSelect"/>
+                <vertical pad-bottom="5" pad-top="5">
+                    <vertical pref-height="15">
+                        <tab-selector tab-tag="characteristicTabs" id="characteristicTabSelector" select-cell="characteristicTabOnSelect"/>
+                        <tab-selector tab-tag="difficultyTabs" id="characteristicTabSelector"/>
+                    </vertical>
                 </vertical>
 
-                <tab tags="difficultyTabs" tab-name="Expert+" id="ExPlusDifficultyTab"/>
-                <tab tags="difficultyTabs" tab-name="Expert" id="ExDifficultyTab"/>
-                <tab tags="difficultyTabs" tab-name="Hard" id="HardDifficultyTab"/>
-                <tab tags="difficultyTabs" tab-name="Normal" id="NormalDifficultyTab"/>
                 <tab tags="difficultyTabs" tab-name="Easy" id="EasyDifficultyTab"/>
-
+                <tab tags="difficultyTabs" tab-name="Normal" id="NormalDifficultyTab"/>
+                <tab tags="difficultyTabs" tab-name="Hard" id="HardDifficultyTab"/>
+                <tab tags="difficultyTabs" tab-name="Expert" id="ExDifficultyTab"/>
+                <tab tags="difficultyTabs" tab-name="Expert+" id="ExPlusDifficultyTab"/>
+                
                 <tab tags="characteristicTabs" tab-name="Standard" id="StandardCharacteristicTab"/>
                 <tab tags="characteristicTabs" tab-name="OneSaber" id="OneSaberCharacteristicTab"/>
                 <tab tags="characteristicTabs" tab-name="NoArrows" id="NoArrowsCharacteristicTab"/>
