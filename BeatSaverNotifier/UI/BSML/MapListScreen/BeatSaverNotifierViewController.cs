@@ -197,13 +197,26 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                     _logger.Error(e);
                 }
             });
-            _beatmapsInList = _beatSaverChecker.CachedMaps.ToList();
         }
 
-        [UIAction("difficultyTabOnSelect")]
-        private void difficultyTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
+        private DifficultyModel.CharacteristicTypes getSelectedCharacteristicFromText(string text) => text switch
         {
-            var selectedDiffType = textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text switch
+            "Standard" => DifficultyModel.CharacteristicTypes.Standard,
+            "OneSaber" => DifficultyModel.CharacteristicTypes.OneSaber,
+            "NoArrows" => DifficultyModel.CharacteristicTypes.NoArrows,
+            "Legacy" => DifficultyModel.CharacteristicTypes.Legacy,
+            "360Degree" => DifficultyModel.CharacteristicTypes.ThreeSixtyDegree,
+            "90Degree" => DifficultyModel.CharacteristicTypes.NintetyDegree,
+            "Lawless" => DifficultyModel.CharacteristicTypes.Lawless,
+            "Lightshow" => DifficultyModel.CharacteristicTypes.Lightshow,
+            _ => DifficultyModel.CharacteristicTypes.Unknown
+        };
+        
+        private void resetSelectedDifficulty() => _difficultyTabSelector.TextSegmentedControl.cells.Last().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
+        
+        private void resetSelectedCharacteristic() => _characteristicTabSelector.TextSegmentedControl.cells.First().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
+        
+        private DifficultyModel.DifficultyTypes getSelectedDifficultyFromText(string text) => text switch
             {
                 "Easy" => DifficultyModel.DifficultyTypes.Easy,
                 "Normal" => DifficultyModel.DifficultyTypes.Normal,
@@ -212,6 +225,11 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 "Expert+" => DifficultyModel.DifficultyTypes.ExpertPlus,
                 _ => DifficultyModel.DifficultyTypes.Unknown
             };
+
+        [UIAction("difficultyTabOnSelect")]
+        private void difficultyTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
+        {
+            var selectedDiffType = getSelectedDifficultyFromText(textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text);
 
             var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].First(i => i.Difficulty == selectedDiffType);
 
@@ -224,24 +242,9 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         [UIAction("characteristicTabOnSelect")]
         private void characteristicTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
         {
-            _selectedCharacteristic = textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text switch
-            {
-                "Standard" => DifficultyModel.CharacteristicTypes.Standard,
-                "OneSaber" => DifficultyModel.CharacteristicTypes.OneSaber,
-                "NoArrows" => DifficultyModel.CharacteristicTypes.NoArrows,
-                "Legacy" => DifficultyModel.CharacteristicTypes.Legacy,
-                "360Degree" => DifficultyModel.CharacteristicTypes.ThreeSixtyDegree,
-                "90Degree" => DifficultyModel.CharacteristicTypes.NintetyDegree,
-                "Lawless" => DifficultyModel.CharacteristicTypes.Lawless,
-                "Lightshow" => DifficultyModel.CharacteristicTypes.Lightshow,
-                _ => DifficultyModel.CharacteristicTypes.Unknown
-            };
+            _selectedCharacteristic = getSelectedCharacteristicFromText(textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text);
             
-            _easyDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Easy);
-            _normalDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Normal);
-            _hardDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Hard);
-            _exDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Expert);
-            _exPlusDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.ExpertPlus);
+            showCorrectDifficultyTabs();
 
             var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
             
@@ -250,7 +253,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
             _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
             
-            _difficultyTabSelector.TextSegmentedControl.cells.Last().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
+            resetSelectedDifficulty();
         }
 
         [UIAction("coverArtOnClick")]
@@ -267,29 +270,16 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 _rightPanelContainer.gameObject.SetActive(true);
                 
                 songSubNameText.text = _selectedBeatmap.SongSubName;
-                mapNameText.text = $"{_selectedBeatmap.SongName}";
+                mapNameText.text = _selectedBeatmap.SongName;
                 songAuthorText.text = _selectedBeatmap.Author;
                 
-                // THIS SUUUUUUUCKS
-                // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                _standardCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Standard);
-                _oneSaberCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.OneSaber);
-                _noArrowsCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.NoArrows);
-                _threeSixtyDegreeCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.ThreeSixtyDegree);
-                _ninetyDegreeCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.NintetyDegree);
-                _legacyCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Legacy);
-                _lawlessCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Lawless);
-                _lightshowCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Lightshow);
-                
-                _easyDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Easy);
-                _normalDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Normal);
-                _hardDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Hard);
-                _exDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Expert);
-                _exPlusDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.ExpertPlus);
+                showCorrectCharacteristicTabs();
+                showCorrectDifficultyTabs();
+                resetSelectedCharacteristic();
+                resetSelectedDifficulty();
 
                 var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
-                _difficultyTabSelector.TextSegmentedControl.cells.Last().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
-                _characteristicTabSelector.TextSegmentedControl.cells.First().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
+                
 
                 _npsText.text = selectedDiffData.NotesPerSecond.ToString(CultureInfo.InvariantCulture);
                 _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
@@ -308,6 +298,27 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 _logger.Error(e);
                 showErrorModal();
             }
+        }
+
+        private void showCorrectCharacteristicTabs()
+        {
+            _standardCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Standard);
+            _oneSaberCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.OneSaber);
+            _noArrowsCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.NoArrows);
+            _threeSixtyDegreeCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.ThreeSixtyDegree);
+            _ninetyDegreeCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.NintetyDegree);
+            _legacyCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Legacy);
+            _lawlessCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Lawless);
+            _lightshowCharacteristicTab.IsVisible = _selectedBeatmap.DifficultyDictionary.ContainsKey(DifficultyModel.CharacteristicTypes.Lightshow);
+        }
+
+        private void showCorrectDifficultyTabs()
+        {
+            _easyDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Easy);
+            _normalDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Normal);
+            _hardDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Hard);
+            _exDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.Expert);
+            _exPlusDifficultyTab.IsVisible = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Any(i => i.Difficulty == DifficultyModel.DifficultyTypes.ExpertPlus);
         }
 
         private void showOrHideNoMapsVertical()
