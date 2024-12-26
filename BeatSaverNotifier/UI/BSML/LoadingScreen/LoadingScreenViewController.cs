@@ -7,6 +7,7 @@ using BeatSaverNotifier.Configuration;
 using BeatSaverNotifier.UI.FlowCoordinators;
 using HMUI;
 using SiraUtil.Logging;
+using Loader = SongCore.Loader;
 using Zenject;
 
 namespace BeatSaverNotifier.UI.BSML.LoadingScreen
@@ -35,6 +36,7 @@ namespace BeatSaverNotifier.UI.BSML.LoadingScreen
             {
                 await Task.Delay(500); // this is required or the game gets mad
 
+                if (Loader.AreSongsLoading) return;
                 if (!_beatSaverChecker.IsChecking && _beatSaverNotifierFlowCoordinator.currentViewController is LoadingScreenViewController)
                     _beatSaverNotifierFlowCoordinator.switchToView(BeatSaverNotifierFlowCoordinator.FlowState.MapList);
             }
