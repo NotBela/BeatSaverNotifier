@@ -347,18 +347,9 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             customListTableData.TableView.ReloadData();
         }
 
-        public async void Initialize()
+        public void Initialize()
         {
-            try
-            {
-                _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
-            
-                await _beatSaverChecker.CheckBeatSaverAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-            }
+            _beatSaverChecker.OnBeatSaverCheckFinished += OnBeatSaverCheckFinished;
         }
 
         public void Dispose()

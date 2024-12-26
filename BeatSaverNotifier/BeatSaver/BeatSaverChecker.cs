@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -15,10 +16,11 @@ using SiraUtil.Logging;
 using SongCore;
 using UnityEngine;
 using Zenject;
+using Loader = SongCore.Loader;
 
 namespace BeatSaverNotifier.BeatSaver
 {
-    public class BeatSaverChecker
+    public class BeatSaverChecker : IInitializable, IDisposable
     {
         [Inject] private readonly OAuthApi _oAuthApi = null;
         [Inject] private readonly SiraLog _logger = null;
@@ -131,6 +133,28 @@ namespace BeatSaverNotifier.BeatSaver
             }
             
             return false;
+        }
+
+        public void Initialize()
+        {
+            Loader.SongsLoadedEvent += onSongsLoaded;
+        }
+
+        private async void onSongsLoaded(Loader arg1, ConcurrentDictionary<string, BeatmapLevel> arg2)
+        {
+            try
+            {
+                await CheckBeatSaverAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message);
+            }
+        }
+
+        public void Dispose()
+        {
+            Loader.SongsLoadedEvent += onSongsLoaded;
         }
     }
 }
