@@ -145,6 +145,7 @@ namespace BeatSaverNotifier.BeatSaver
             try
             {
                 await CheckBeatSaverAsync();
+                Loader.SongsLoadedEvent -= onSongsLoaded; // unsubscribe after first load so it doesnt refresh every single songloadedevent
             }
             catch (Exception e)
             {
@@ -154,7 +155,7 @@ namespace BeatSaverNotifier.BeatSaver
 
         public void Dispose()
         {
-            Loader.SongsLoadedEvent += onSongsLoaded;
+            Loader.SongsLoadedEvent -= onSongsLoaded;
         }
     }
 }
