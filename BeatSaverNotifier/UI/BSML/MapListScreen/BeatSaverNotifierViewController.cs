@@ -130,6 +130,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 customListTableData.TableView.ClearSelection();
                 
                 await _mapQueueManager.addMapToQueue(_selectedBeatmap);
+                showOrHideNoMapsVertical();
             }
             catch (Exception e)
             {
@@ -200,6 +201,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                     _logger.Error(e);
                 }
             });
+            _beatmapsInList.Clear();
         }
 
         private DifficultyModel.CharacteristicTypes getSelectedCharacteristicFromText(string text) => text switch
@@ -326,9 +328,10 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
 
         private void showOrHideNoMapsVertical()
         {
-            _noMapsVertical.gameObject.SetActive(!areMapsInQueue);
-            _mapListVertical.gameObject.SetActive(areMapsInQueue);
-            _downloadAllButton.interactable = areMapsInQueue;
+            if (_noMapsVertical != null) _noMapsVertical.gameObject.SetActive(!areMapsInQueue);
+            if (_mapListVertical != null) _mapListVertical.gameObject.SetActive(areMapsInQueue);
+            if (_downloadAllButton != null) _downloadAllButton.interactable = areMapsInQueue;
+            if (ignoreButton != null) ignoreButton.interactable = areMapsInQueue;
         }
         
         private void OnBeatSaverCheckFinished(List<BeatmapModel> mapList)

@@ -16,7 +16,6 @@ using SiraUtil.Logging;
 using SongCore;
 using UnityEngine;
 using Zenject;
-using Loader = SongCore.Loader;
 
 namespace BeatSaverNotifier.BeatSaver
 {
@@ -149,7 +148,7 @@ namespace BeatSaverNotifier.BeatSaver
             }
             catch (Exception e)
             {
-                _logger.Error(e.Message);
+                _logger.Error(e);
             }
         }
 

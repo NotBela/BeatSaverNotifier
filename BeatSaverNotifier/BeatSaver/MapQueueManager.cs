@@ -66,7 +66,6 @@ namespace BeatSaverNotifier.BeatSaver
                     }
                     catch (Exception exception)
                     {
-                        downloadFinished?.Invoke(beatmap, idx, false);
                         _logger.Error($"Failed to download beatmap {beatmap.Id}: {exception}");
                     }
                 }
