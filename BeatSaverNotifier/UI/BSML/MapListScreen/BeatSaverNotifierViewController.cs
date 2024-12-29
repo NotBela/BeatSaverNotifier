@@ -238,7 +238,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
 
             var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].First(i => i.Difficulty == selectedDiffType);
 
-            _npsText.text = selectedDiffData.NotesPerSecond.ToString(CultureInfo.InvariantCulture);
+            _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
             _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
             _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
             _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
@@ -253,7 +253,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
 
             var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
             
-            _npsText.text = selectedDiffData.NotesPerSecond.ToString(CultureInfo.InvariantCulture);
+            _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
             _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
             _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
             _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
@@ -286,7 +286,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
                 
 
-                _npsText.text = selectedDiffData.NotesPerSecond.ToString(CultureInfo.InvariantCulture);
+                _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
                 _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
                 _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
                 _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
