@@ -35,7 +35,7 @@ namespace BeatSaverNotifier.BeatSaver
 
         public void removeFromCachedMaps(BeatmapModel beatmap) => _cachedMaps.Remove(beatmap);
 
-        private long parseUnixTimestamp(DateTime dateTime) => ((DateTimeOffset) dateTime).ToUnixTimeSeconds();
+        public static long parseUnixTimestamp(DateTime dateTime) => ((DateTimeOffset) dateTime).ToUnixTimeSeconds();
         
         public async Task CheckBeatSaverAsync(bool silentLoadingScreen = false)
         {

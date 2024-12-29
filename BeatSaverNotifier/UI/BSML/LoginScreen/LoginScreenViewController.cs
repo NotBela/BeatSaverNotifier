@@ -20,7 +20,7 @@ namespace BeatSaverNotifier.UI.BSML.LoginScreen
     public class LoginScreenViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         [Inject] private readonly OAuthApi _oauthApi = null;
-        
+        [Inject] private readonly SiraLog _logger = null;
         [UIParams] private readonly BSMLParserParams _parserParams = null;
         
         [UIComponent("checkBrowserText")]
@@ -38,6 +38,14 @@ namespace BeatSaverNotifier.UI.BSML.LoginScreen
             
             if (PluginConfig.Instance.isSignedIn) _loginVertical.gameObject.SetActive(false);
             else _loggedInVertical.gameObject.SetActive(false);
+        }
+
+        [UIAction("resetFirstCheckDateOnClick")]
+        private void ResetFirstCheckDateOnClick()
+        {
+            PluginConfig.Instance.firstCheckUnixTimeStamp =
+                BeatSaverChecker.parseUnixTimestamp(IPA.Utilities.Utils.CurrentTime());
+            _logger.Info($"Reset first check date to {PluginConfig.Instance.firstCheckUnixTimeStamp}");
         }
         
         [UIAction("loginButtonOnClick")]

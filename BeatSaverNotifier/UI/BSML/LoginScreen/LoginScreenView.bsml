@@ -10,6 +10,7 @@
     </vertical>
     <vertical spacing="5" id="loggedInVertical">
         <button on-click="signOutOfBeatSaverOnClick" text="Sign out of BeatSaver"/>
+        <button text="Reset first check date" on-click="resetFirstCheckDateOnClick"/>
         <text text="placeholder version text" id="versionText" align="Center"/>
     </vertical>
 
