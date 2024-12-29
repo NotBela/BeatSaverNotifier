@@ -5,6 +5,9 @@ BeatSaverNotifier is a BSIPA mod that aims to provide an easy way to download ma
 > [!NOTE]
 > BeatSaverNotifier requires a BeatSaver account to function.
 
+# Installation
+Simply drag the mod into your 'Plugins' folder in your game install. In addition to BSIPA, this mod also requires BSML and SiraUtil.
+
 # Usage
 
 > [!IMPORTANT]
