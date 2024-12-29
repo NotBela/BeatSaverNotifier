@@ -105,12 +105,12 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.Id);
             
             _rightPanelContainer.gameObject.SetActive(false);
-            
+            customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
+            customListTableData.TableView.ClearSelection();
+            customListTableData.TableView.ReloadData();
             _beatmapsInList.Remove(_selectedBeatmap);
             _beatSaverChecker.removeFromCachedMaps(_selectedBeatmap);
-            customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
             _selectedBeatmap = null;
-            customListTableData.TableView.ReloadData();
             showOrHideNoMapsVertical();
         }
         
