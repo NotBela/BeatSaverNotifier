@@ -1,6 +1,6 @@
 # BeatSaverNotifier
 
-BeatSaverNotifier is a BSIPA mod that aims to provide an easy way to download maps uploaded to BeatSaver by mappers that they follow.
+BeatSaverNotifier is a BSIPA mod that aims to provide an easy way to download maps uploaded to BeatSaver by mappers that you follow.
 
 > [!NOTE]
 > BeatSaverNotifier requires a BeatSaver account to function.
