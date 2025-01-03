@@ -103,13 +103,20 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.Id);
             
             _rightPanelContainer.gameObject.SetActive(false);
-            customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
-            customListTableData.TableView.ClearSelection();
-            customListTableData.TableView.ReloadData();
-            _beatmapsInList.Remove(_selectedBeatmap);
-            _beatSaverChecker.removeFromCachedMaps(_selectedBeatmap);
+            
+            updateBeatmapList();
+            
             _selectedBeatmap = null;
             showOrHideNoMapsVertical();
+        }
+
+        private void updateBeatmapList()
+        {
+            customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
+            _beatSaverChecker.removeFromCachedMaps(_selectedBeatmap);
+            _beatmapsInList.Remove(_selectedBeatmap);
+            customListTableData.TableView.ReloadData();
+            customListTableData.TableView.ClearSelection();
         }
         
         [UIAction("downloadButtonOnClick")]
@@ -121,11 +128,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 downloadButton.interactable = false;
                 ignoreButton.interactable = false;
 
-                customListTableData.Data.RemoveAt(_beatmapsInList.IndexOf(_selectedBeatmap));
-                _beatSaverChecker.removeFromCachedMaps(_selectedBeatmap);
-                _beatmapsInList.Remove(_selectedBeatmap);
-                customListTableData.TableView.ReloadData();
-                customListTableData.TableView.ClearSelection();
+                updateBeatmapList();
                 
                 await _mapQueueManager.addMapToQueue(_selectedBeatmap);
                 _rightPanelContainer.gameObject.SetActive(areMapsInQueue);
