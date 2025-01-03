@@ -30,7 +30,6 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
     {
         private BeatSaverChecker _beatSaverChecker;
         private SiraLog _logger;
-        private OAuthApi _oAuthApi;
         private MapQueueManager _mapQueueManager;
         private BeatSaverNotifierFlowCoordinator flowCoordinator;
 
@@ -38,8 +37,8 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         
         private BeatmapModel _selectedBeatmap;
         private DifficultyModel.CharacteristicTypes _selectedCharacteristic;
-        
-        public bool areMapsInQueue => _beatmapsInList.Any();
+
+        private bool areMapsInQueue => _beatmapsInList.Any();
         
         [UIParams] private readonly BSMLParserParams parserParams = null;
         
@@ -51,7 +50,6 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         {
             this._logger = siraLog;
             this._beatSaverChecker = beatSaverChecker;
-            this._oAuthApi = oAuthApi;
             this._mapQueueManager = mapQueueManager;
             this.flowCoordinator = flowCoordinator;
         }
@@ -130,6 +128,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 customListTableData.TableView.ClearSelection();
                 
                 await _mapQueueManager.addMapToQueue(_selectedBeatmap);
+                _rightPanelContainer.gameObject.SetActive(areMapsInQueue);
                 showOrHideNoMapsVertical();
             }
             catch (Exception e)
@@ -291,7 +290,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
                 _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
                 
-                bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || Loader.GetLevelByHash(_selectedBeatmap.VersionHashes[0]) != null;
+                bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || BeatSaverChecker.mapAlreadyDownloaded(_selectedBeatmap);
                 downloadButton.interactable = !mapIsQueuedOrDownloaded;
                 ignoreButton.interactable = !mapIsQueuedOrDownloaded;
                 downloadButton.SetButtonText(mapIsQueuedOrDownloaded ? "Downloading..." : "Download");

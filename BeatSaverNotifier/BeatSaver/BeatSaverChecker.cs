@@ -120,19 +120,7 @@ namespace BeatSaverNotifier.BeatSaver
             } while (true);
         }
 
-        private bool mapAlreadyDownloaded(BeatmapModel beatmap)
-        {
-            foreach (var mapHash in beatmap.VersionHashes)
-            {
-
-                if (Loader.GetLevelByHash(mapHash) != null)
-                {
-                    return true;
-                }
-            }
-            
-            return false;
-        }
+        public static bool mapAlreadyDownloaded(BeatmapModel beatmap) => beatmap.VersionHashes.Any(mapHash => Loader.GetLevelByHash(mapHash) != null);
 
         public void Initialize()
         {
