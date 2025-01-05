@@ -28,10 +28,10 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
     [ViewDefinition("BeatSaverNotifier.UI.BSML.MapListScreen.BeatSaverNotifierView.bsml")]
     internal class BeatSaverNotifierViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
-        private BeatSaverChecker _beatSaverChecker;
-        private SiraLog _logger;
-        private MapQueueManager _mapQueueManager;
-        private BeatSaverNotifierFlowCoordinator flowCoordinator;
+        [Inject] private readonly BeatSaverChecker _beatSaverChecker = null!;
+        [Inject] private readonly SiraLog _logger = null!;
+        [Inject] private readonly MapQueueManager _mapQueueManager = null!;
+        [Inject] private readonly BeatSaverNotifierFlowCoordinator flowCoordinator = null!;
 
         private List<BeatmapModel> _beatmapsInList = new();
         
@@ -44,15 +44,6 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         
         [UIComponent("mapList")]
         private readonly CustomListTableData customListTableData = null;
-        
-        [Inject]
-        public void Inject(SiraLog siraLog, BeatSaverChecker beatSaverChecker, OAuthApi oAuthApi, MapQueueManager mapQueueManager, BeatSaverNotifierFlowCoordinator flowCoordinator)
-        {
-            this._logger = siraLog;
-            this._beatSaverChecker = beatSaverChecker;
-            this._mapQueueManager = mapQueueManager;
-            this.flowCoordinator = flowCoordinator;
-        }
         
         [UIComponent("rightPanelContainer")] private readonly HorizontalLayoutGroup _rightPanelContainer = null;
         
