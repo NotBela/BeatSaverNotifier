@@ -21,6 +21,7 @@ namespace BeatSaverNotifier.Installers
             Container.BindInterfacesAndSelfTo<MapQueueViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LoadingScreenViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LoginScreenViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<SongPreviewController>().AsSingle();
         }
     }
 }

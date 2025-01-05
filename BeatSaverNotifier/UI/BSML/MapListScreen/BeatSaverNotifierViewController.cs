@@ -32,6 +32,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         [Inject] private readonly SiraLog _logger = null!;
         [Inject] private readonly MapQueueManager _mapQueueManager = null!;
         [Inject] private readonly BeatSaverNotifierFlowCoordinator flowCoordinator = null!;
+        [Inject] private readonly SongPreviewController _songPreviewController = null!;
 
         private List<BeatmapModel> _beatmapsInList = new();
         
@@ -278,6 +279,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
 
                 var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
                 
+                _songPreviewController.playPreview(_selectedBeatmap.PreviewAudioClip);
 
                 _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
                 _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);

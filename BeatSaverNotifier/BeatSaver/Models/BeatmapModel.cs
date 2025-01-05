@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Components;
-using HarmonyLib;
 using ModestTree;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BeatSaverNotifier.BeatSaver.Models
 {
@@ -31,10 +30,25 @@ namespace BeatSaverNotifier.BeatSaver.Models
         public string Id { get; private set; }
         public string DownloadUrl { get; private set; }
         public DateTime UploadDate { get; private set; }
+        public AudioClip PreviewAudioClip { get; private set; }
         
         public Dictionary<DifficultyModel.CharacteristicTypes, List<DifficultyModel>> DifficultyDictionary { get; private set; }
 
-        private BeatmapModel(byte[] coverBytes, string uploadName, string[] versionHashes, string songName, string songSubName, string author, string id, string[] mappers, string description, string downloadUrl, DateTime uploadDate, Dictionary<DifficultyModel.CharacteristicTypes, List<DifficultyModel>> difficultyDictionary)
+        private BeatmapModel(
+            byte[] coverBytes, 
+            string uploadName, 
+            string[] versionHashes, 
+            string songName, 
+            string songSubName, 
+            string author, 
+            string id, 
+            string[] mappers, 
+            string description, 
+            string downloadUrl, 
+            DateTime uploadDate, 
+            Dictionary<DifficultyModel.CharacteristicTypes, 
+                List<DifficultyModel>> difficultyDictionary,
+            AudioClip coverAudioClip)
         {
             this._coverBytes = coverBytes;
             this.CoverSprite = getSpriteFromImageBuffer(coverBytes);
@@ -49,10 +63,11 @@ namespace BeatSaverNotifier.BeatSaver.Models
             this.DownloadUrl = downloadUrl;
             this.UploadDate = uploadDate;
             this.DifficultyDictionary = difficultyDictionary;
+            this.PreviewAudioClip = coverAudioClip;
         }
 
         public CustomListTableData.CustomCellInfo getCustomListCellInfo(bool queuedText = false) => 
-            new CustomListTableData.CustomCellInfo(this.UploadName, queuedText ? "Queued" : this.Mappers.Join(", "), getSpriteFromImageBuffer(_coverBytes));
+            new(this.UploadName, queuedText ? "Queued" : this.Mappers.Join(", "), getSpriteFromImageBuffer(_coverBytes));
         
         private Sprite getSpriteFromImageBuffer(byte[] buffer)
         {
@@ -94,6 +109,17 @@ namespace BeatSaverNotifier.BeatSaver.Models
             
             var downloadUrl = versions[0]["downloadURL"]?.Value<string>();
 
+            var previewUrl = versions[0]["previewURL"]?.Value<string>()!;
+
+            AudioClip preview;
+
+            using (var www = UnityWebRequestMultimedia.GetAudioClip(previewUrl, AudioType.MPEG))
+            {
+                www.SendWebRequest();
+                while (!www.isDone) await Task.Delay(10);
+                preview = DownloadHandlerAudioClip.GetContent(www);
+            }
+
             var uploadDate = DateTime.ParseExact(jsonObject["uploaded"]?.Value<string>(), 
                 "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None);
 
@@ -121,7 +147,8 @@ namespace BeatSaverNotifier.BeatSaver.Models
                 description,
                 downloadUrl,
                 uploadDate, 
-                dictionary);
+                dictionary,
+                preview);
         }
     }
 }
