@@ -43,7 +43,7 @@ namespace BeatSaverNotifier.BeatSaver
             {
                 _queueIsDownloading = true;
 
-                var tempQueue = new List<BeatmapModel>(mapQueue); // compiler will bitch if this isnt here so just loop in a while true until the queue is empty
+                var tempQueue = new List<BeatmapModel>(mapQueue);
 
                 foreach (var beatmap in tempQueue)
                 {

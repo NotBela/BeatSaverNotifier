@@ -18,7 +18,7 @@ namespace BeatSaverNotifier
         internal static Plugin Instance { get; private set; }
         internal static IPALogger Log { get; private set; }
         
-        public PluginMetadata metaData { get; set; }
+        public PluginMetadata metaData { get; private set; }
 
         [Init]
         public void Init(Zenjector zenjector, IPALogger logger, Config config, PluginMetadata metadata)

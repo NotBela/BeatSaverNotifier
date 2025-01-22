@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Components;
 using IPA.Config.Data;
+using IPA.Utilities;
 using ModestTree;
 using Newtonsoft.Json.Linq;
 using SongCore;
@@ -78,8 +80,11 @@ namespace BeatSaverNotifier.BeatSaver.Models
             tex.Apply();
             return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
         }
-
-        public bool isAlreadyDownloaded() => VersionHashes.Any(i => Loader.GetLevelByHash(i) != null);
+        // thank you beatsaver api for being ass <3
+        public bool isAlreadyDownloaded() => VersionHashes.Any(i => Loader.GetLevelByHash(i) != null) || 
+                                             Directory.GetDirectories(Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels"))
+                                                 .Select(i => i.Substring(0, Math.Min(i.Length, Id.Length)))
+                                                 .Any(i => i == Id);
             
         public static async Task<BeatmapModel> Parse(string json)
         {
