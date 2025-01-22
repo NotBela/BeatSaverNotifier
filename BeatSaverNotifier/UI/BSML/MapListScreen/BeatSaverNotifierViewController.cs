@@ -31,7 +31,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
     {
         [Inject] private readonly BeatSaverChecker _beatSaverChecker = null!;
         [Inject] private readonly SiraLog _logger = null!;
-        [Inject] private readonly MapQueueManager _mapQueueManager = null!;
+        [Inject] private readonly DownloadQueueManager _downloadQueueManager = null!;
         [Inject] private readonly BeatSaverNotifierFlowCoordinator flowCoordinator = null!;
         [Inject] private readonly SongPreviewController _songPreviewController = null!;
 
@@ -122,7 +122,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
 
                 updateBeatmapList();
                 
-                await _mapQueueManager.addMapToQueue(_selectedBeatmap);
+                await _downloadQueueManager.addMapToQueue(_selectedBeatmap);
                 _rightPanelContainer.gameObject.SetActive(areMapsInQueue);
                 showOrHideNoMapsVertical();
             }
@@ -188,7 +188,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             {
                 try
                 {
-                    await _mapQueueManager.addMapToQueue(i);
+                    await _downloadQueueManager.addMapToQueue(i);
                 }
                 catch (Exception e)
                 {
@@ -251,7 +251,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 _songPreviewController.playPreview(_selectedBeatmap.PreviewAudioClip);
 
                 bool mapIsQueuedOrDownloaded =
-                    _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || _selectedBeatmap.isAlreadyDownloaded();
+                    _downloadQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || _selectedBeatmap.isAlreadyDownloaded();
                 downloadButton.interactable = !mapIsQueuedOrDownloaded;
                 ignoreButton.interactable = !mapIsQueuedOrDownloaded;
                 downloadButton.SetButtonText(mapIsQueuedOrDownloaded ? "Downloading..." : "Download");

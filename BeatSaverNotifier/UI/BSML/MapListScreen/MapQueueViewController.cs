@@ -19,7 +19,7 @@ namespace BeatSaverNotifier.UI.BSML
     [ViewDefinition("BeatSaverNotifier.UI.BSML.MapListScreen.MapQueueView.bsml")]
     public class MapQueueViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
-        private MapQueueManager _mapQueueManager;
+        private DownloadQueueManager _downloadQueueManager;
         private SiraLog _logger;
         
         [UIComponent("queueList")] private readonly CustomListTableData _queueList = null;
@@ -30,14 +30,14 @@ namespace BeatSaverNotifier.UI.BSML
         [UIAction("#post-parse")]
         void postParse()
         {
-            _queueList.Data = _mapQueueManager.readOnlyQueue.Select(i => i.getCustomListCellInfo(true)).ToList();
+            _queueList.Data = _downloadQueueManager.readOnlyQueue.Select(i => i.getCustomListCellInfo(true)).ToList();
             _queueList.TableView.ReloadData();
         }
         
         [Inject]
-        void Inject(MapQueueManager mapQueueManager, SiraLog logger)
+        void Inject(DownloadQueueManager downloadQueueManager, SiraLog logger)
         {
-            _mapQueueManager = mapQueueManager;
+            _downloadQueueManager = downloadQueueManager;
             _logger = logger;
         }
 
@@ -49,10 +49,10 @@ namespace BeatSaverNotifier.UI.BSML
 
         private void onDownloadStarted(BeatmapModel beatmap)
         {
-            if (_mapQueueManager.readOnlyQueue.Count == 0) return;
-            if (_mapQueueManager.readOnlyQueue.IndexOf(beatmap) == -1) return;
+            if (_downloadQueueManager.readOnlyQueue.Count == 0) return;
+            if (_downloadQueueManager.readOnlyQueue.IndexOf(beatmap) == -1) return;
             
-            _queueList.Data[_mapQueueManager.readOnlyQueue.IndexOf(beatmap)].Subtext = "Downloading...";
+            _queueList.Data[_downloadQueueManager.readOnlyQueue.IndexOf(beatmap)].Subtext = "Downloading...";
             _queueList.TableView.ReloadData();
         }
 
@@ -64,16 +64,16 @@ namespace BeatSaverNotifier.UI.BSML
         
         public void Initialize()
         {
-            _mapQueueManager.downloadStarted += onDownloadStarted;
-            _mapQueueManager.downloadFinished += onDownloadFinished;
-            _mapQueueManager.mapAddedToQueue += mapAddedToQueue;
+            _downloadQueueManager.downloadStarted += onDownloadStarted;
+            _downloadQueueManager.downloadFinished += onDownloadFinished;
+            _downloadQueueManager.mapAddedToQueue += mapAddedToQueue;
         }
 
         public void Dispose()
         {
-            _mapQueueManager.downloadStarted -= onDownloadStarted;
-            _mapQueueManager.downloadFinished -= onDownloadFinished;
-            _mapQueueManager.mapAddedToQueue -= mapAddedToQueue;
+            _downloadQueueManager.downloadStarted -= onDownloadStarted;
+            _downloadQueueManager.downloadFinished -= onDownloadFinished;
+            _downloadQueueManager.mapAddedToQueue -= mapAddedToQueue;
         }
     }
 }

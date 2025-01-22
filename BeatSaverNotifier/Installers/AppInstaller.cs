@@ -10,7 +10,7 @@ namespace BeatSaverNotifier.Installers
         {
             Container.BindInterfacesAndSelfTo<BeatSaverChecker>().AsSingle();
             Container.BindInterfacesAndSelfTo<OAuthApi>().AsSingle();
-            Container.BindInterfacesAndSelfTo<MapQueueManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<DownloadQueueManager>().AsSingle();
         }
     }
 }

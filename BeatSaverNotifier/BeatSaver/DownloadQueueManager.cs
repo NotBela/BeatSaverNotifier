@@ -14,7 +14,7 @@ using Zenject;
 
 namespace BeatSaverNotifier.BeatSaver
 {
-    public class MapQueueManager
+    public class DownloadQueueManager
     {
         [Inject] private readonly SiraLog _logger = null;
         
