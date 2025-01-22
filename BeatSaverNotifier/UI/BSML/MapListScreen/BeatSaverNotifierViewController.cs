@@ -91,8 +91,8 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         [UIAction("ignoreButtonOnClick")]
         private void IgnoreButtonOnClick()
         {
-            if (!PluginConfig.Instance.keysToIgnore.Contains(_selectedBeatmap.Id)) 
-                PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.Id);
+            if (!PluginConfig.Instance.keysToIgnore.Contains(_selectedBeatmap.Key)) 
+                PluginConfig.Instance.keysToIgnore.Add(_selectedBeatmap.Key);
             
             _rightPanelContainer.gameObject.SetActive(false);
             
@@ -225,7 +225,7 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         }
 
         [UIAction("coverArtOnClick")]
-        private void coverArtOnClick() => Process.Start($"https://beatsaver.com/maps/{_selectedBeatmap.Id}");
+        private void coverArtOnClick() => Process.Start($"https://beatsaver.com/maps/{_selectedBeatmap.Key}");
         
         [UIAction("onCellSelect")]
         private void onCellSelected(TableView tableView, int index)

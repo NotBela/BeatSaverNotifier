@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace BeatSaverNotifier.BeatSaver.Models
         
         public string[] Mappers {get; private set; }
         public string Description { get; private set; }
-        public string Id { get; private set; }
+        public string Key { get; private set; }
         public string DownloadUrl { get; private set; }
         public DateTime UploadDate { get; private set; }
         public AudioClip PreviewAudioClip { get; private set; }
@@ -45,7 +46,7 @@ namespace BeatSaverNotifier.BeatSaver.Models
             string songName, 
             string songSubName, 
             string author, 
-            string id, 
+            string key, 
             string[] mappers, 
             string description, 
             string downloadUrl, 
@@ -62,7 +63,7 @@ namespace BeatSaverNotifier.BeatSaver.Models
             this.SongSubName = songSubName;
             this.Author = author;
             this.Mappers = mappers;
-            this.Id = id;
+            this.Key = key;
             this.Description = description;
             this.DownloadUrl = downloadUrl;
             this.UploadDate = uploadDate;
@@ -83,8 +84,11 @@ namespace BeatSaverNotifier.BeatSaver.Models
         // thank you beatsaver api for being ass <3
         public bool isAlreadyDownloaded() => VersionHashes.Any(i => Loader.GetLevelByHash(i) != null) || 
                                              Directory.GetDirectories(Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels"))
-                                                 .Select(i => i.Substring(0, Math.Min(i.Length, Id.Length)))
-                                                 .Any(i => i == Id);
+                                                 .Select(i => i.Substring(0, Math.Min(i.Length, 
+                                                     i.IndexOf(" ") != -1 ? 
+                                                     i.IndexOf(" ") : 
+                                                     Key.Length)))
+                                                 .Any(i => i == Key);
             
         public static async Task<BeatmapModel> Parse(string json)
         {

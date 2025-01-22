@@ -59,7 +59,7 @@ namespace BeatSaverNotifier.BeatSaver
                         zippedZipArchive.ExtractToDirectory(Path.Combine(UnityGame.InstallPath, 
                             "Beat Saber_Data", 
                             "CustomLevels", 
-                            Path.GetInvalidFileNameChars().Aggregate($"{beatmap.Id} ({beatmap.SongName} - {beatmap.Mappers.Join(", ")})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
+                            Path.GetInvalidFileNameChars().Aggregate($"{beatmap.Key} ({beatmap.SongName} - {beatmap.Mappers.Join(", ")})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
                         
                         mapQueue.Remove(beatmap);
                         downloadFinished?.Invoke(beatmap, idx);
@@ -68,7 +68,7 @@ namespace BeatSaverNotifier.BeatSaver
                     {
                         if (tempQueue.Contains(beatmap)) tempQueue.Remove(beatmap);
                         if (mapQueue.Contains(beatmap)) tempQueue.Remove(beatmap);
-                        _logger.Error($"Failed to download beatmap {beatmap.Id}: {exception}");
+                        _logger.Error($"Failed to download beatmap {beatmap.Key}: {exception}");
                     }
                 }
 
