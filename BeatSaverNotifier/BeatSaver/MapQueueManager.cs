@@ -18,11 +18,11 @@ namespace BeatSaverNotifier.BeatSaver
     {
         [Inject] private readonly SiraLog _logger = null;
         
-        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient = new();
 
         public event Action<BeatmapModel> mapAddedToQueue;
         public event Action<BeatmapModel> downloadStarted;
-        public event Action<BeatmapModel, int, bool> downloadFinished;
+        public event Action<BeatmapModel, int> downloadFinished;
         
         private readonly List<BeatmapModel> mapQueue = new();
         
@@ -62,10 +62,12 @@ namespace BeatSaverNotifier.BeatSaver
                             Path.GetInvalidFileNameChars().Aggregate($"{beatmap.Id} ({beatmap.SongName} - {beatmap.Mappers.Join(", ")})", (current, illegalChar) => current.Replace(illegalChar.ToString(), ""))));
                         
                         mapQueue.Remove(beatmap);
-                        downloadFinished?.Invoke(beatmap, idx, false);
+                        downloadFinished?.Invoke(beatmap, idx);
                     }
                     catch (Exception exception)
                     {
+                        if (tempQueue.Contains(beatmap)) tempQueue.Remove(beatmap);
+                        if (mapQueue.Contains(beatmap)) tempQueue.Remove(beatmap);
                         _logger.Error($"Failed to download beatmap {beatmap.Id}: {exception}");
                     }
                 }

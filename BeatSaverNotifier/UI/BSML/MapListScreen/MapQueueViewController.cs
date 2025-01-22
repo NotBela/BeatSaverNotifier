@@ -56,7 +56,7 @@ namespace BeatSaverNotifier.UI.BSML
             _queueList.TableView.ReloadData();
         }
 
-        private void onDownloadFinished(BeatmapModel beatmap, int indexToRemove, bool wasSuccessful)
+        private void onDownloadFinished(BeatmapModel beatmap, int indexToRemove)
         {
             _queueList.Data.RemoveAt(indexToRemove);
             _queueList.TableView.ReloadData();

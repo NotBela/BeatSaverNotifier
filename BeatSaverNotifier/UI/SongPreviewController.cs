@@ -10,8 +10,9 @@ public class SongPreviewController : IInitializable, IDisposable
 {
     [Inject] private readonly SongPreviewPlayer _songPreviewPlayer = null!;
     [Inject] private readonly BeatSaverNotifierFlowCoordinator _beatSaverNotifierFlowCoordinator = null!;
+    [Inject] private readonly SettingsManager _settingsManager = null!;
 
-    public void playPreview(AudioClip audioClip) => _songPreviewPlayer.CrossfadeTo(audioClip, 1f, 0f, audioClip.length, () => {});
+    public void playPreview(AudioClip audioClip) => _songPreviewPlayer.CrossfadeTo(audioClip, _settingsManager.settings.audio.ambientVolumeScale, 0f, audioClip.length, () => {});
     
     private void onBackButtonPressed() => _songPreviewPlayer.CrossfadeToDefault();
     private void onViewControllerSwitched(ViewController _) => _songPreviewPlayer.CrossfadeToDefault();

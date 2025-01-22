@@ -20,6 +20,29 @@ public class DifficultyModel
         this.Characteristic = characteristic;
         this.Difficulty = difficulty;
     }
+    
+    public static DifficultyTypes getSelectedDifficultyFromText(string text) => text switch
+    {
+        "Easy" => DifficultyModel.DifficultyTypes.Easy,
+        "Normal" => DifficultyModel.DifficultyTypes.Normal,
+        "Hard" => DifficultyModel.DifficultyTypes.Hard,
+        "Expert" => DifficultyModel.DifficultyTypes.Expert,
+        "Expert+" => DifficultyModel.DifficultyTypes.ExpertPlus,
+        _ => DifficultyModel.DifficultyTypes.Unknown
+    };
+    
+    public static CharacteristicTypes getSelectedCharacteristicFromText(string text) => text switch
+    {
+        "Standard" => DifficultyModel.CharacteristicTypes.Standard,
+        "OneSaber" => DifficultyModel.CharacteristicTypes.OneSaber,
+        "NoArrows" => DifficultyModel.CharacteristicTypes.NoArrows,
+        "Legacy" => DifficultyModel.CharacteristicTypes.Legacy,
+        "360Degree" => DifficultyModel.CharacteristicTypes.ThreeSixtyDegree,
+        "90Degree" => DifficultyModel.CharacteristicTypes.NintetyDegree,
+        "Lawless" => DifficultyModel.CharacteristicTypes.Lawless,
+        "Lightshow" => DifficultyModel.CharacteristicTypes.Lightshow,
+        _ => DifficultyModel.CharacteristicTypes.Unknown
+    };
 
     public static DifficultyModel Parse(string json)
     {

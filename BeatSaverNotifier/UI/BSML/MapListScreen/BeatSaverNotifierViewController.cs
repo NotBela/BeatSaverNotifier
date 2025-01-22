@@ -16,6 +16,7 @@ using BeatSaverNotifier.Configuration;
 using BeatSaverNotifier.UI.FlowCoordinators;
 using HarmonyLib;
 using HMUI;
+using IPA.Loader;
 using SiraUtil.Logging;
 using SongCore;
 using TMPro;
@@ -69,7 +70,6 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
         [UIComponent("characteristicTabSelector")] private readonly TabSelector _characteristicTabSelector = null;
         [UIComponent("difficultyTabSelector")] private readonly TabSelector _difficultyTabSelector = null;
         
-        // dont think theres a better way to do this
         [UIComponent("StandardCharacteristicTab")] private readonly Tab _standardCharacteristicTab = null;
         [UIComponent("OneSaberCharacteristicTab")] private readonly Tab _oneSaberCharacteristicTab = null;
         [UIComponent("NoArrowsCharacteristicTab")] private readonly Tab _noArrowsCharacteristicTab = null;
@@ -197,60 +197,29 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
             });
             _beatmapsInList.Clear();
         }
-
-        private DifficultyModel.CharacteristicTypes getSelectedCharacteristicFromText(string text) => text switch
-        {
-            "Standard" => DifficultyModel.CharacteristicTypes.Standard,
-            "OneSaber" => DifficultyModel.CharacteristicTypes.OneSaber,
-            "NoArrows" => DifficultyModel.CharacteristicTypes.NoArrows,
-            "Legacy" => DifficultyModel.CharacteristicTypes.Legacy,
-            "360Degree" => DifficultyModel.CharacteristicTypes.ThreeSixtyDegree,
-            "90Degree" => DifficultyModel.CharacteristicTypes.NintetyDegree,
-            "Lawless" => DifficultyModel.CharacteristicTypes.Lawless,
-            "Lightshow" => DifficultyModel.CharacteristicTypes.Lightshow,
-            _ => DifficultyModel.CharacteristicTypes.Unknown
-        };
         
         private void resetSelectedDifficulty() => _difficultyTabSelector.TextSegmentedControl.cells.Last().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
         
         private void resetSelectedCharacteristic() => _characteristicTabSelector.TextSegmentedControl.cells.First().SetSelected(true, SelectableCell.TransitionType.Instant, this, false);
-        
-        private DifficultyModel.DifficultyTypes getSelectedDifficultyFromText(string text) => text switch
-            {
-                "Easy" => DifficultyModel.DifficultyTypes.Easy,
-                "Normal" => DifficultyModel.DifficultyTypes.Normal,
-                "Hard" => DifficultyModel.DifficultyTypes.Hard,
-                "Expert" => DifficultyModel.DifficultyTypes.Expert,
-                "Expert+" => DifficultyModel.DifficultyTypes.ExpertPlus,
-                _ => DifficultyModel.DifficultyTypes.Unknown
-            };
 
         [UIAction("difficultyTabOnSelect")]
         private void difficultyTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
         {
-            var selectedDiffType = getSelectedDifficultyFromText(textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text);
+            var selectedDiffType = DifficultyModel.getSelectedDifficultyFromText(textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text);
 
             var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].First(i => i.Difficulty == selectedDiffType);
 
-            _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
-            _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
-            _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
-            _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
+            updateDifficultyDataText(selectedDiffData);
         }
 
         [UIAction("characteristicTabOnSelect")]
         private void characteristicTabOnSelect(TextSegmentedControl textSegmentedControl, int idx)
         {
-            _selectedCharacteristic = getSelectedCharacteristicFromText(textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text);
+            _selectedCharacteristic = DifficultyModel.getSelectedCharacteristicFromText(textSegmentedControl.cells[idx].GetComponentInChildren<TextMeshProUGUI>().text);
             
             showCorrectDifficultyTabs();
 
-            var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
-            
-            _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
-            _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
-            _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
-            _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
+            updateDifficultyDataText();
             
             resetSelectedDifficulty();
         }
@@ -277,16 +246,12 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 resetSelectedCharacteristic();
                 resetSelectedDifficulty();
 
-                var selectedDiffData = _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
+                updateDifficultyDataText();
                 
                 _songPreviewController.playPreview(_selectedBeatmap.PreviewAudioClip);
 
-                _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
-                _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
-                _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
-                _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
-                
-                bool mapIsQueuedOrDownloaded = _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || BeatSaverChecker.mapAlreadyDownloaded(_selectedBeatmap);
+                bool mapIsQueuedOrDownloaded =
+                    _mapQueueManager.readOnlyQueue.Contains(_selectedBeatmap) || _selectedBeatmap.isAlreadyDownloaded();
                 downloadButton.interactable = !mapIsQueuedOrDownloaded;
                 ignoreButton.interactable = !mapIsQueuedOrDownloaded;
                 downloadButton.SetButtonText(mapIsQueuedOrDownloaded ? "Downloading..." : "Download");
@@ -298,6 +263,16 @@ namespace BeatSaverNotifier.UI.BSML.MapListScreen
                 _logger.Error(e);
                 showErrorModal();
             }
+        }
+
+        private void updateDifficultyDataText(DifficultyModel diffModel = null)
+        {
+            var selectedDiffData = diffModel ?? _selectedBeatmap.DifficultyDictionary[_selectedCharacteristic].Last();
+            
+            _npsText.text = selectedDiffData.NotesPerSecond.ToString("F2", CultureInfo.InvariantCulture);
+            _noteCountText.text = selectedDiffData.NoteCount.ToString(CultureInfo.InvariantCulture);
+            _bombCountText.text = selectedDiffData.BombCount.ToString(CultureInfo.InvariantCulture);
+            _wallCountText.text = selectedDiffData.WallCount.ToString(CultureInfo.InvariantCulture);
         }
 
         private void showCorrectCharacteristicTabs()

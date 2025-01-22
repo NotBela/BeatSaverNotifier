@@ -43,19 +43,14 @@ namespace BeatSaverNotifier.UI
             MenuButtons.Instance.RegisterButton(_menuButton);
         }
 
-        private void FlowCoordinatorOnBackButtonPressed()
-        {
-            updateMenuButton();
-        }
+        private void FlowCoordinatorOnBackButtonPressed() => updateMenuButton();
 
         private void updateMenuButton()
         {
-            var buttonText = _beatSaverChecker.CachedMaps.Count == 0 ? "BeatSaverNotifier" : "<color=#00FF00><b>BeatSaverNotifier";
-            
             _menuButton.HoverHint = $"{_beatSaverChecker.CachedMaps.Count} maps in queue.";
             
             MenuButtons.Instance.UnregisterButton(_menuButton);
-            _menuButton.Text = buttonText;
+            _menuButton.Text = _beatSaverChecker.CachedMaps.Count == 0 ? "BeatSaverNotifier" : "<color=#00FF00><b>BeatSaverNotifier";
             MenuButtons.Instance.RegisterButton(_menuButton);
         }
 

@@ -76,7 +76,6 @@ namespace BeatSaverNotifier.BeatSaver
                     });
 
                     var response = await _httpClient.SendAsync(request);
-                    // Plugin.Log.Info("erm sending a request!");
 
                     if (!response.IsSuccessStatusCode)
                         throw new Exception("Failed to fetch page with status code " + (int)response.StatusCode);
@@ -94,7 +93,7 @@ namespace BeatSaverNotifier.BeatSaver
 
                             var map = await BeatmapModel.Parse(mapJToken.ToString());
 
-                            if (mapAlreadyDownloaded(map)) continue;
+                            if (map.isAlreadyDownloaded()) continue;
                             if (parseUnixTimestamp(map.UploadDate) < PluginConfig.Instance.firstCheckUnixTimeStamp)
                                 return maps;
 
@@ -110,17 +109,10 @@ namespace BeatSaverNotifier.BeatSaver
                 }
                 catch (Exception e)
                 {
-                    if (e.Message.Contains("429"))
-                    {
-                        _logger.Info("Rate limit reached! Please consider adding maps to your ignore list.");
-                        await Task.Delay(10000);
-                    }
-                    else throw;
+                    _logger.Error($"Could not fetch page data: {e}");
                 }
             } while (true);
         }
-
-        public static bool mapAlreadyDownloaded(BeatmapModel beatmap) => beatmap.VersionHashes.Any(mapHash => Loader.GetLevelByHash(mapHash) != null);
 
         public void Initialize()
         {
